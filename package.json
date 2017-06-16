@@ -1,0 +1,29 @@
+{
+  "name": "horticulture",
+  "version": "0.1.0",
+  "description": "A collection of data structures whose traditionally naming suggests they were inspired by a walk in the woods.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haleyga/horticulture.git"
+  },
+  "keywords": [
+    "tree",
+    "data",
+    "structure"
+  ],
+  "author": "Graham Haley <graham.andrew.haley@gmail.com> (https://haleyhousellc.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haleyga/horticulture/issues"
+  },
+  "homepage": "https://github.com/haleyga/horticulture#readme"
+}
