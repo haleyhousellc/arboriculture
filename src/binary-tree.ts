@@ -1,3 +1,6 @@
+/**
+ * Base binary tree node interface
+ */
 export interface IBinaryTreeNode<T> {
     data: T;
     left: IBinaryTreeNode<T>;
@@ -5,6 +8,9 @@ export interface IBinaryTreeNode<T> {
     toString(): string;
 }
 
+/**
+ * Implementation of base binary tree node
+ */
 export class BinaryTreeNode<T> implements IBinaryTreeNode<T> {
     data: T;
     left: IBinaryTreeNode<T>;

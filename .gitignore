@@ -141,6 +141,8 @@ driver.js
 driver.js.map
 src/**/*.js
 src/**/*.js.map
+examples/**/*.js
+examples/**/*.js.map
 
 build/
 tmp/

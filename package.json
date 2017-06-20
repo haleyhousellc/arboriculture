@@ -1,5 +1,5 @@
 {
-  "name": "horticulture",
+  "name": "arboriculture",
   "version": "0.1.0",
   "description": "A collection of data structures whose traditionally naming suggests they were inspired by a walk in the woods.",
   "main": "index.js",
@@ -10,25 +10,28 @@
   },
   "scripts": {
     "lint": "tslint src/**/*.ts",
-    "test": "test"
+    "test": "test",
+    "doc": ""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haleyga/horticulture.git"
+    "url": "git+https://github.com/haleyga/arboriculture.git"
   },
   "keywords": [
+    "typescript",
+    "library",
+    "data structure",
     "tree",
     "binary tree",
     "binary search tree",
-    "data",
-    "structure"
+    "red-black tree"
   ],
   "author": "Graham Haley <graham.andrew.haley@gmail.com> (https://haleyhousellc.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/haleyga/horticulture/issues"
+    "url": "https://github.com/haleyga/arboriculture/issues"
   },
-  "homepage": "https://github.com/haleyga/horticulture#readme",
+  "homepage": "https://github.com/haleyga/arboriculture#readme",
   "devDependencies": {
     "@types/chai": "^4.0.0",
     "@types/mocha": "^2.2.41",
