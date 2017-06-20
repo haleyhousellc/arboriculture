@@ -9,6 +9,7 @@
     "test": "test"
   },
   "scripts": {
+    "lint": "tslint src/**/*.ts",
     "test": "test"
   },
   "repository": {
@@ -17,6 +18,8 @@
   },
   "keywords": [
     "tree",
+    "binary tree",
+    "binary search tree",
     "data",
     "structure"
   ],
@@ -25,5 +28,19 @@
   "bugs": {
     "url": "https://github.com/haleyga/horticulture/issues"
   },
-  "homepage": "https://github.com/haleyga/horticulture#readme"
+  "homepage": "https://github.com/haleyga/horticulture#readme",
+  "devDependencies": {
+    "@types/chai": "^4.0.0",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^7.0.31",
+    "babel-cli": "^6.24.1",
+    "babel-preset-latest": "^6.24.1",
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "ts-node": "^3.0.6",
+    "tslint": "^5.4.3",
+    "typedoc": "^0.7.1",
+    "typescript": "^2.3.4",
+    "uglify-js": "^3.0.17"
+  }
 }
