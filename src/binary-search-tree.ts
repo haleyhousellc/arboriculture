@@ -1,45 +1,61 @@
 import { IBinaryTreeNode, BinaryTreeNode } from './binary-tree';
 
 export interface IBinarySearchTree<T> {
+    count: number;
     find(data: T): IBinaryTreeNode<T>;
     insert(data: T): IBinarySearchTree<T>;
     delete(data: T): IBinarySearchTree<T>;
     data(): T[];
-    stringify(): string;
+    toString(): string;
 }
+
+export type IComparer<T> = (a: T, b: T) => number;
+export const defaultComparator = <T>(a: T, b: T): number => {
+    if (a < b) return -1;
+    else if (a == b) return 0;
+    else return 1;
+};
 
 /**
  * Simple binary search tree supporting find, insert, and delete operations.
  */
 export class BinarySearchTree<T> implements IBinarySearchTree<T> {
-    private root: IBinaryTreeNode<T>;
+    private _root: IBinaryTreeNode<T>;
+    private _comparer: IComparer<T>;
+    private _count: number;
 
-    constructor(data: T = null) {
-        this.root = null;
-        if (data) this._insert(data, this.root);
+    constructor(data: T = null, comparer: IComparer<T> = defaultComparator) {
+        this._root  = null;
+        this._count = 0;
+        if (data) this._insert(data, this._root);
+        this._comparer = comparer;
+    }
+
+    public get count(): number {
+        return this._count;
     }
 
     public find(data: T): IBinaryTreeNode<T> {
-        return this._find(data, this.root);
+        return this._find(data, this._root);
     }
 
     public insert(data: T): IBinarySearchTree<T> {
-        this._insert(data, this.root);
+        this._insert(data, this._root);
         return this;
     }
 
     public delete(data: T): IBinarySearchTree<T> {
-        this._delete(data, this.root);
+        this._delete(data, this._root);
         return this;
     }
 
     public data(): T[] {
-        return this._traverse(this.root);
+        return this._traverse(this._root);
     }
 
-    public stringify(): string {
+    public toString(): string {
         let s = '';
-        this._traverse(this.root).forEach((datum) => {
+        this._traverse(this._root).forEach((datum) => {
             s += `${datum.toString()}; `;
         });
         return s.trim();
@@ -51,10 +67,10 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
     private _find(data: T, node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
 
         // if the node is null, or the data is found, good on us
-        if (!node || node.data == data) return node;
+        if (!node || this._comparer(data, node.data) === 0) return node;
 
         // if the requested data is greater than the data in the current node, traverse the right child
-        if (data > node.data) return this._find(data, node.right);
+        if (this._comparer(data, node.data) > 0) return this._find(data, node.right);
 
         // if the requested data is less than the data in the current node, traverse the left child
         return this._find(data, node.left);
@@ -74,16 +90,19 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
             const newNode: IBinaryTreeNode<T> = new BinaryTreeNode<T>(data);
 
             // This is a shortcut to assign the root of a previously empty tree.
-            if (!this.root) this.root = newNode;
+            if (!this._root) this._root = newNode;
+
+            // Increment the node count.
+            this._count++;
 
             return newNode;
         }
 
         // If the requested data is less than the data in the node, _insert into the left subtree.
-        if (data < node.data) node.left = this._insert(data, node.left);
+        if (this._comparer(data, node.data) < 0) node.left = this._insert(data, node.left);
 
         // If the requested data is greater than the data in the node, _insert into the right subtree.
-        else if (data > node.data) node.right = this._insert(data, node.right);
+        else if (this._comparer(data, node.data) > 0) node.right = this._insert(data, node.right);
 
         // Return the current node.
         // If the new data is already present in the tree, the current node is unchanged.  Otherwise, the current node's
@@ -102,13 +121,16 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
         if (!root) return root;
 
         // If the data to be deleted is less than the root's data, look in the left subtree.
-        if (data < root.data) root.left = this._delete(data, root.left);
+        if (this._comparer(data, root.data) < 0) root.left = this._delete(data, root.left);
 
-        // If the data to be deleted is less than the root's data, look in the right subtree.
-        else if (data > root.data) root.right = this._delete(data, root.right);
+        // If the data to be deleted is greater than the root's data, look in the right subtree.
+        else if (this._comparer(data, root.data) > 0) root.right = this._delete(data, root.right);
 
         // If the data is the target, then _delete the current root.
         else {
+
+            // Decrement the node count.
+            this._count--;
 
             // If the root has at most one child (and it is a right child), return the right child.
             if (!root.left) return root.right;
