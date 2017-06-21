@@ -1,6 +1,6 @@
-import { IBinaryTreeNode, BinaryTreeNode } from './binary-tree';
+import { IBinaryTreeNode, BinaryTreeNode, IBinaryTree, BinaryTree, IComparer, defaultComparer } from './binary-tree';
 
-export interface IBinarySearchTree<T> {
+export interface IBinarySearchTree<T> extends IBinaryTree<T>{
     count: number;
     find(data: T): IBinaryTreeNode<T>;
     insert(data: T): IBinarySearchTree<T>;
@@ -9,26 +9,13 @@ export interface IBinarySearchTree<T> {
     toString(): string;
 }
 
-export type IComparer<T> = (a: T, b: T) => number;
-export const defaultComparator = <T>(a: T, b: T): number => {
-    if (a < b) return -1;
-    else if (a == b) return 0;
-    else return 1;
-};
-
 /**
  * Simple binary search tree supporting find, insert, and delete operations.
  */
-export class BinarySearchTree<T> implements IBinarySearchTree<T> {
-    private _root: IBinaryTreeNode<T>;
-    private _comparer: IComparer<T>;
-    private _count: number;
+export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchTree<T> {
 
-    constructor(data: T = null, comparer: IComparer<T> = defaultComparator) {
-        this._root  = null;
-        this._count = 0;
-        if (data) this._insert(data, this._root);
-        this._comparer = comparer;
+    constructor(data: T = null, comparer: IComparer<T> = defaultComparer) {
+        super(data, comparer);
     }
 
     public get count(): number {
@@ -40,12 +27,12 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
     }
 
     public insert(data: T): IBinarySearchTree<T> {
-        this._insert(data, this._root);
+        this._root = this._insert(data, this._root);
         return this;
     }
 
     public delete(data: T): IBinarySearchTree<T> {
-        this._delete(data, this._root);
+        this._root = this._delete(data, this._root);
         return this;
     }
 
@@ -64,7 +51,10 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
     /**
      * Search the tree for a given piece of data
      */
-    private _find(data: T, node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+    protected _find(data: T, node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+
+        // Quick check to shortcut.
+        if (data == null) return null;
 
         // if the node is null, or the data is found, good on us
         if (!node || this._comparer(data, node.data) === 0) return node;
@@ -78,9 +68,12 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
 
     /**
      * Insert the given data into the tree.  No duplicates are allowed.  If the new data is a duplicate, no change
-     * occurs.
+     * occurs.  Returns the root of the current subtree (eventually returning the tree root as recursion unrolls).
      */
-    private _insert(data: T, node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+    protected _insert(data: T, node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+
+        // Quick check to shortcut.
+        if (data == null) return null;
 
         // If the node is null, return a new node with the data.
         // The node will only be null when the tree is empty (i.e. root is null) or if the node is a leaf.
@@ -115,7 +108,10 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
      * top-level root of the full tree.  The return value is the new root of the tree (if unchanged, the original root
      * is returned).
      */
-    private _delete(data: T, root: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+    protected _delete(data: T, root: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+
+        // Quick check to shortcut.
+        if (data == null) return null;
 
         // If the root is null, return null - nothing to _delete.
         if (!root) return root;
@@ -155,7 +151,7 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
     /**
      * Private helper function to find the immediate successor to a given node.
      */
-    private _findSuccessor(node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
+    protected _findSuccessor(node: IBinaryTreeNode<T>): IBinaryTreeNode<T> {
 
         // Initialize current to the argument 'node'
         let current: IBinaryTreeNode<T> = node;
@@ -169,7 +165,7 @@ export class BinarySearchTree<T> implements IBinarySearchTree<T> {
         return current;
     }
 
-    private _traverse(root: IBinaryTreeNode<T>, data: T[] = []): T[] {
+    protected _traverse(root: IBinaryTreeNode<T>, data: T[] = []): T[] {
         if (root) {
             this._traverse(root.left, data);
             data.push(root.data);

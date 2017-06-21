@@ -133,17 +133,18 @@ describe('binary-search-tree', () => {
             });
 
             it(`should correctly delete an arbitrary type`, (done) => {
+                bstAlt.insert(t0).insert(t2).insert(t1)
                 bstAlt.delete(t0);
                 const s = bstAlt.toString();
-                //expect(s.trim()).to.equal(`how goesit 2; what up 4;`);
+                expect(s.trim()).to.equal(`how goesit 2; what up 4;`);
                 expect(bstAlt.count).to.equal(2);
                 done();
             });
 
             it(`should correctly find an arbitrary type`, (done) => {
                 const node = bstAlt.find(t1);
-                const s = node.toString();
-                //expect(s.trim()).to.equal(`how goesit 2; what up 4;`);
+                const s    = node.toString();
+                expect(s.trim()).to.equal(`data: what up 4`);
                 expect(bstAlt.count).to.equal(2);
                 done();
             });
