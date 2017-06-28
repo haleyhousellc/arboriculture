@@ -6,7 +6,7 @@ import { IBinaryTreeNode } from "./binary-tree";
 const expect = chai.expect;
 const assert = chai.assert;
 
-describe('binary-search-tree', () => {
+describe('binary-search-tree.ts', () => {
 
     let bst: IBinarySearchTree<number>;
 
@@ -31,7 +31,7 @@ describe('binary-search-tree', () => {
         describe('#toString', () => {
             it(`should traverse its elements in order`, (done) => {
                 const s = bst.toString();
-                expect(s).to.equal(`0; 1; 2; 3; 6; 7; 8; 9;`);
+                expect(s).to.equal(`0 | 1 | 2 | 3 | 6 | 7 | 8 | 9`);
                 expect(bst.count).to.equal(8);
                 done();
             });
@@ -48,18 +48,18 @@ describe('binary-search-tree', () => {
             });
         });
 
-        describe('#delete', () => {
+        describe('#remove', () => {
             it(`should correctly remove a requested piece of data`, (done) => {
-                bst.delete(6).delete(9);
+                bst.remove(6).remove(9);
                 const s = bst.toString();
-                expect(s).to.equal(`0; 1; 2; 3; 7; 8;`);
+                expect(s).to.equal(`0 | 1 | 2 | 3 | 7 | 8`);
                 expect(bst.count).to.equal(6);
                 done();
             });
 
             it(`should leave the tree unchanged if deleting a nonexistent element`, (done) => {
                 const s1 = bst.toString();
-                bst.delete(60);
+                bst.remove(60);
                 const s2 = bst.toString();
                 assert(s1 == s2, `the tree should remain unchanged`);
                 expect(bst.count).to.equal(8);
@@ -127,16 +127,16 @@ describe('binary-search-tree', () => {
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1);
                 const s = bstAlt.toString();
-                expect(s).to.equal(`hi there 1; how goesit 2; what up 4;`);
+                expect(s).to.equal(`hi there 1 | how goesit 2 | what up 4`);
                 expect(bstAlt.count).to.equal(3);
                 done();
             });
 
             it(`should correctly delete an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1)
-                bstAlt.delete(t0);
+                bstAlt.remove(t0);
                 const s = bstAlt.toString();
-                expect(s.trim()).to.equal(`how goesit 2; what up 4;`);
+                expect(s.trim()).to.equal(`how goesit 2 | what up 4`);
                 expect(bstAlt.count).to.equal(2);
                 done();
             });

@@ -1,4 +1,4 @@
-import { IBinarySearchTree, BinarySearchTree, IComparer } from "../src/binary-search-tree";
+import { IBinarySearchTree, BinarySearchTree } from "../src/binary-search-tree";
 import { IBinaryTreeNode } from "../src/binary-tree";
 
 // create a new empty binary search tree holding numerical values
@@ -22,15 +22,15 @@ bst.insert(5).insert(4); // this is ok
 console.log(bst.toString());  // '2; 4; 5; 100;'
 
 
-// #delete
+// #remove
 
 // Remove an existing value.
-bst.delete(5);
+bst.remove(5);
 console.log(bst.toString());  // '2; 4; 100;'
 
 // Removing an item that isn't in the tree is not an error, but the tree will remain unchanged (chaining is allowed here
 // too).
-bst.delete(5).delete(5);  // this is ok
+bst.remove(5).remove(5);  // this is ok
 console.log(bst.toString());  // '2; 4; 100;'
 
 
@@ -38,7 +38,7 @@ console.log(bst.toString());  // '2; 4; 100;'
 
 // Find an existing item.
 let node: IBinaryTreeNode<number> = bst.find(4);
-console.log(`find a node with value 4 => ${node}`);  // 'find a node with value 4 => data: 4'
+console.log(`find a node with value 4 => ${node}`);  // 'find a node with value 4 => traverse: 4'
 
 // fFind a node existing item.
 node = bst.find(400);
@@ -49,7 +49,7 @@ console.log(`find a node with value 400 => ${node}`);  // 'find a node with valu
 // custom compare function may be provided during construction.
 const bstString: IBinarySearchTree<string> = new BinarySearchTree<string>();
 
-// Be sure you provide your own compare function when using a tree to store custom objects, otherwise insert, delete,
+// Be sure you provide your own compare function when using a tree to store custom objects, otherwise insert, remove,
 // and find results are undefined.
 interface IMyObject {
     member1: string;

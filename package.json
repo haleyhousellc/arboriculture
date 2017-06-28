@@ -45,5 +45,8 @@
     "typedoc": "^0.7.1",
     "typescript": "^2.3.4",
     "uglify-js": "^3.0.17"
+  },
+  "dependencies": {
+    "uuid": "^3.1.0"
   }
 }

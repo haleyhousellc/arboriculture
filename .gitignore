@@ -78,7 +78,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Runtime data
+# Runtime traverse
 pids
 *.pid
 *.seed
