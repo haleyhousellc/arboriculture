@@ -4,9 +4,45 @@
     "tslint:recommended"
   ],
   "rules": {
-
+    "no-console": false,
+    "no-consecutive-blank-lines": [
+      true,
+      2
+    ],
+    "quotemark": [
+      true,
+      "single",
+      "avoid-escape"
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ],
+    "max-classes-per-file": [
+      false
+    ],
+    "max-line-length": [
+      true,
+      120
+    ],
+    "curly": [
+      true,
+      "ignore-same-line"
+    ],
+    "triple-equals": [
+      true,
+      "allow-null-check",
+      "allow-undefined-check"
+    ],
+    "object-literal-sort-keys": [true, "ignore-case"],
+    "one-line": false,
+    "interface-over-type-literal": false,
+    "array-type": false,
+    "comment-format": false
   },
   "jsRules": {},
-  "rules": {},
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "exclude": "build/**/*.ts"
 }

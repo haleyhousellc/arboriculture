@@ -144,5 +144,5 @@ src/**/*.js.map
 examples/**/*.js
 examples/**/*.js.map
 
-build/
-tmp/
+dist
+docs/autogen

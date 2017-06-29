@@ -10,7 +10,7 @@
     "emitDecoratorMetadata": true,
     "target": "es6",
     "declaration": true,
-    "declarationDir": "./build/es6"
+    "outDir": "dist/es6"
   },
   "compileOnSave": true,
   "include": [
@@ -18,6 +18,8 @@
     "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "src/**/*.spec.ts",
+    "node_modules",
+    "driver.ts"
   ]
 }
