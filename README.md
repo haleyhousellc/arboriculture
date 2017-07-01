@@ -27,10 +27,10 @@ JavaScript projects.  Unleash your inner lumberjack.
 
 ```bash
 # from npm package
-npm install gdax-api
+npm install arboriculture
 
 # from github
-npm install haleyhousellc/gdax-api
+npm install haleyhousellc/arboriculture
 ```
 
 ## Quick Start
