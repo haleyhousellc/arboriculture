@@ -111,7 +111,7 @@ const bst: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myObje
 
 The most common scripts are demonstrated here, for the full list see the 
 [package.json](https://github.com/haleyga/arboriculture/blob/master/package.json) file or the 
-[full documentation](https://github.com/haleyga/arboriculture/wiki).
+[full documentation](https://haleyga.github.io/arboriculture).
 
 Run the TypeScript linter:
 ```bash
