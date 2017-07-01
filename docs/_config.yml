@@ -1,41 +1,9 @@
 theme: jekyll-theme-cayman
-entries:
-- title: sidebar
-  product: arboriculture GitHub Pages
-  - title: Getting Started
-    url: /index.html
-    output: web, pdf
-    type: homepage
-  - title: Npm Scripts
-    url: /npm_script.html
-    output: web, pdf
-  folders:
-  - title: Deep Dive
-    output: web, pdf
-    url: /deep_dive/index.html
-    folderitems:
-    - title: Binary Search Tree
-      url: /deep_dive/bst.html
-      output: web, pdf
-    - title: Red-Black Tree
-      url: /deep_dive/rbt.html
-      output: web, pdf
-  - title: Developer Guide
-    output: web, pdf
-    url: /developer/index.html
-    folderitems:
-    - title: Linting
-      url: /developer/linting.html
-      output: web, pdf
-    - title: Testing
-      url: /developer/testing.html
-      output: web, pdf
-    - title: Demoing
-      url: /developer/Demoing.html
-      output: web, pdf
-    - title: Documenting
-      url: /developer/documenting.html
-      output: web, pdf
-    - title: IComparer
-      url: /developer/comparer.html
-      output: web, pdf
+defaults:
+  # _docs
+  - scope:
+      path: ""
+      type: docs
+    values:
+      sidebar:
+        nav: "docs"
