@@ -1,13 +1,17 @@
 import {
+    defaultComparer,
     BinaryTree,
     BinaryTreeNode,
-    defaultComparer,
     IBinaryTree,
     IBinaryTreeNode,
     IComparer,
     TraversalOrder,
 } from '../binary-tree/binary-tree';
 
+/**
+ * A binary search tree node redefines the types of members #left and #right to return IBinarySearchTreeNode<T> rather
+ * than a base IBinaryTreeNode<T>.  It also adds a pointer to its parent for much simpler manipulation in the tree.
+ */
 export interface IBinarySearchTreeNode<T> extends IBinaryTreeNode<T> {
     left: IBinarySearchTreeNode<T>;
     right: IBinarySearchTreeNode<T>;
@@ -56,6 +60,11 @@ export interface IBinarySearchTree<T> extends IBinaryTree<T> {
     remove(data: T): IBinarySearchTree<T>;
 }
 
+/**
+ * A complex return type for the internally (protected) member function #_remove.  This object provides the caller with
+ * all important nodes involved in the removal of a candidate.  The candidate's replacement and the replacement's
+ * successor are included in addition to the node that was actually removed.
+ */
 export interface IBinarySearchTreeNodeRemovalResult<T> {
     candidate: IBinarySearchTreeNode<T>;
     newSuccessor: IBinarySearchTreeNode<T>;
@@ -89,11 +98,13 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
 
     public insert(data: T): IBinarySearchTree<T> {
         this._insert(data);
+
         return this;
     }
 
     public remove(data: T): IBinarySearchTree<T> {
         this._remove(data);
+
         return this;
     }
 
