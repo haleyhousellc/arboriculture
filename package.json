@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haleyga/arboriculture.git"
+    "url": "git+https://github.com/haleyhousellc/arboriculture.git"
   },
   "keywords": [
     "typescript",
@@ -50,9 +50,9 @@
   "author": "Graham Haley <graham.andrew.haley@gmail.com> (https://haleyhousellc.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/haleyga/arboriculture/issues"
+    "url": "https://github.com/haleyhousellc/arboriculture/issues"
   },
-  "homepage": "https://github.com/haleyga/arboriculture#readme",
+  "homepage": "https://github.com/haleyhousellc/arboriculture#readme",
   "devDependencies": {
     "@types/chai": "^4.0.0",
     "@types/mocha": "^2.2.41",

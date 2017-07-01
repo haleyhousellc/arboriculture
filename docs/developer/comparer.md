@@ -58,4 +58,4 @@ number.
 *__WARNING__: If improperly implemented (i.e., returning -1 when the objects are actually equal), an [IComparer][comparer link] will
  likely produce unsatisfactory results.*
  
-[comparer link]: https://github.com/haleyga/arboriculture/blob/master/src/binary-tree/binary-tree.ts#L58
+[comparer link]: https://github.com/haleyhousellc/arboriculture/blob/master/src/binary-tree/binary-tree.ts#L58

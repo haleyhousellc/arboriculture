@@ -36,7 +36,7 @@ npm install haleyhousellc/arboriculture
 ## Quick Start
 
 A few basic usage examples are shown.  Most trees have similar operations, so a basic 
-[Binary Search Tree](https://github.com/haleyga/arboriculture/blob/master/src/binary-search-tree/binary-search-tree.ts) 
+[Binary Search Tree](https://github.com/haleyhousellc/arboriculture/blob/master/src/binary-search-tree/binary-search-tree.ts) 
 is shown for convenience.
 
 Get a new tree:
@@ -110,8 +110,8 @@ const bst: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myObje
 ## Package Scripts
 
 The most common scripts are demonstrated here, for the full list see the 
-[package.json](https://github.com/haleyga/arboriculture/blob/master/package.json) file or the 
-[full documentation](https://haleyga.github.io/arboriculture).
+[package.json](https://github.com/haleyhousellc/arboriculture/blob/master/package.json) file or the 
+[full documentation](https://haleyhousellc.github.io/arboriculture).
 
 Run the TypeScript linter:
 ```bash
@@ -129,7 +129,7 @@ npm run test
 ```
 
 Generate source documentation from the TypeScript files in 
-[`src`](https://github.com/haleyga/arboriculture/blob/master/src) (excluding *.spec.ts test files):
+[`src`](https://github.com/haleyhousellc/arboriculture/blob/master/src) (excluding *.spec.ts test files):
 ```bash
 npm run doc
 ```
@@ -145,10 +145,10 @@ npm run thewholenine
 New additions to the forest are always welcome.  Feel free to fork, add your tree and initiate a pull request.  A few 
 things to keep in mind:
 
-* The [tslint.json](https://github.com/haleyga/arboriculture/blob/master/tslint.json) configuration shows the TypeScript
+* The [tslint.json](https://github.com/haleyhousellc/arboriculture/blob/master/tslint.json) configuration shows the TypeScript
 coding guidelines.
 * Unit tests for specific tree files should follow the standard shown in 
-  [`src`](https://github.com/haleyga/arboriculture/blob/master/src).  If your tree file is named mytree.ts, the
+  [`src`](https://github.com/haleyhousellc/arboriculture/blob/master/src).  If your tree file is named mytree.ts, the
   the corresponding test file should reside in the same directory with the name mytree.spec.ts.  Should more general
   integration testing be needed in the future, a `test` directory may be added to hold these specs.
 * Readable code is always preferred over concise code.
