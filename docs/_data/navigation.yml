@@ -1,25 +1,27 @@
 docs:
   - title: "Getting Started"
-    url: /index.html
+    url: /
     children:
     - title: "Npm Scripts"
       url: /npm_script.html
+
   - title: "Deep Dive"
-    url: /deep_dive/index.html
+    url: /deep_dive/
     children:
     - title: "Binary Search Tree"
       url: /deep_dive/bst.html
     - title: "Red-Black Tree"
       url: /deep_dive/rbt.html
+
   - title: "Developer Guide"
-    url: /developer/index.html
+    url: /developer/
     children:
     - title: "Linting"
       url: /developer/linting.html
     - title: "Testing"
       url: /developer/testing.html
     - title: "Demoing"
-      url: /developer/Demoing.html
+      url: /developer/demoing.html
     - title: "Documenting"
       url: /developer/documenting.html
     - title: "IComparer"

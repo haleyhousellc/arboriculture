@@ -1,9 +1,15 @@
 theme: jekyll-theme-cayman
+url: "https://haleyga.github.io"
+baseurl: "/arboriculture"
+repository: "haleyhousellc/arboriculture"
+breadcrumbs: true
 defaults:
   # _docs
   - scope:
       path: ""
       type: docs
     values:
+      author_profile: true
+      read_time: true
       sidebar:
         nav: "docs"
