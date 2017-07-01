@@ -1,14 +1,14 @@
 # IComparer
 
-[IComparer][comparer link] is a custom type in
-source providing a simple interface to define the explicit method in which to comparer two arbitrary objects (both of 
-the same type).
+[IComparer][comparer link] is a custom type providing a simple interface to define how to compare two arbitrary objects 
+(both of the same type).
 
 The comparison function must take two arguments of the same type and output a number.
 
 ```typescript
 
-// Custom type with a string member and a number member.  How do you decide which among two objects is greater?
+// Custom type with a string member and a number member.  How do you decide which among two objects is 
+// greater?
 interface IMyObject {
     member1: string;
     member2: number;
@@ -36,7 +36,8 @@ A comparer can be written in any way, as long as it suits the needs of the custo
 
 enum MyEnum { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY }
 
-// Custom type with a string member and a number member.  How do you decide which among two objects is greater?
+// Custom type with a string member, a number member, and an enum member.  How do you decide which among 
+// two objects is greater?
 interface IMyObject {
     member1: string;
     member2: number;
@@ -55,6 +56,6 @@ an [IComparer][comparer link] can use whatever means to determine which object i
 number.
 
 *__WARNING__: If improperly implemented (i.e., returning -1 when the objects are actually equal), an [IComparer][comparer link] will
- likely produce unsatisfactory results*
+ likely produce unsatisfactory results.*
  
 [comparer link]: https://github.com/haleyga/arboriculture/blob/master/src/binary-tree/binary-tree.ts#L58
