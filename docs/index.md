@@ -8,6 +8,6 @@ guidelines for anyone wishing to contribute to the project.
 
 ### Contents
 
-- [npm scripts](https://github.com/haleyga/arboriculture/blob/master/docs/npm_scripts.md)
-- [data structures](https://github.com/haleyga/arboriculture/blob/master/docs/deep_dive/index.md)
-- [developer guide](https://github.com/haleyga/arboriculture/blob/master/developer/index.md)
+- [npm scripts](https://haleyga.github.io/arboriculture/npm_scripts)
+- [data structures](https://haleyga.github.io/arboriculture/deep_dive)
+- [developer guide](https://haleyga.github.io/arboriculture/developer)
