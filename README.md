@@ -46,7 +46,7 @@ const bst: IBinarySearchTree<number> = new BinarySearchTree<number>();
 
 Get a new tree with an initial value:
 ```typescript
-const bst: IBinaryTreeNode<number> = new BinarySearchTree<number>(5);
+const bst: IBinarySearchTree<number> = new BinarySearchTree<number>(5);
 ```
 
 Insert values:
