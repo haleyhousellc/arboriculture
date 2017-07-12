@@ -1,4 +1,4 @@
-export { IBinaryTree, IBinaryTreeNode, IComparer } from './src/binary-tree/binary-tree';
+export { IBinaryTree, IBinaryTreeNode, IComparer, TraversalOrder } from './src/binary-tree/binary-tree';
 export {
     IBinarySearchTree,
     BinarySearchTree,
