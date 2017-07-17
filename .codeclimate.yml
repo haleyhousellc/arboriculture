@@ -1,0 +1,20 @@
+engines:
+  tslint:
+    enabled: true
+    channel: beta
+   markdownlint:
+     enabled: true
+ratings:
+  paths:
+  - src/**/*
+  - examples/**/*
+  - "**.md"
+fixme:
+  enabled: true
+duplication:
+  enabled: true
+  config:
+    languages:
+      javascript:
+exclude_paths:
+- node_modules
