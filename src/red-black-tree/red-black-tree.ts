@@ -87,14 +87,13 @@ export interface IRedBlackTree<T> extends IBinarySearchTree<T> {
  */
 export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTree<T> {
 
-    private _sentinel: RedBlackTreeNode<T> = null;
+    private _sentinel: IRedBlackTreeNode<T> = null;
 
     constructor(comparer: IComparer<T> = defaultComparer) {
         super(comparer);
 
-        this._sentinel       = new RedBlackTreeNode<T>(null);
-        this._sentinel.color = RedBlackTreeNodeColor.BLACK;
-        this._root           = this._sentinel;
+        this._sentinel = this.makeSentinel();
+        this._root     = this._sentinel;
     }
 
     public get count(): number {
@@ -599,6 +598,16 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     protected _clear(): void {
         super.clear();
         this._root = this._sentinel;
+    }
+
+    private makeSentinel(): IRedBlackTreeNode<T> {
+        const sentinel: IRedBlackTreeNode<T> = new RedBlackTreeNode(null);
+        sentinel.parent                      = sentinel;
+        sentinel.left                        = sentinel;
+        sentinel.right                       = sentinel;
+        sentinel.color                       = RedBlackTreeNodeColor.BLACK;
+
+        return sentinel;
     }
 
     // </editor-fold>
