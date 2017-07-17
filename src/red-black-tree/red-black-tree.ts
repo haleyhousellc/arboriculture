@@ -146,7 +146,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
             currentParent = current;
 
             // Don't allow duplicates, so simply return if the data is already present in the tree.
-            if (this._comparer(current.data, newNode.data) === 0) return null;
+            if (this._comparer(newNode.data, current.data) === 0) return null;
 
             // Otherwise traverse the appropriate child.
             if (this._comparer(newNode.data, current.data) < 0) current = current.left;
