@@ -28,19 +28,19 @@ export class BinarySearchTreeNode<T> extends BinaryTreeNode<T> implements IBinar
     }
 
     public get left(): IBinarySearchTreeNode<T> {
-        return super.left as IBinarySearchTreeNode<T>;
+        return this._left as IBinarySearchTreeNode<T>;
     }
 
     public set left(newLeft: IBinarySearchTreeNode<T>) {
-        super.left = newLeft;
+        this._left = newLeft;
     }
 
     public get right(): IBinarySearchTreeNode<T> {
-        return super.right as IBinarySearchTreeNode<T>;
+        return this._right as IBinarySearchTreeNode<T>;
     }
 
     public set right(newRight: IBinarySearchTreeNode<T>) {
-        super.right = newRight;
+        this._right = newRight;
     }
 
     public get parent(): IBinarySearchTreeNode<T> {
@@ -108,10 +108,6 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
 
     public toString(order: TraversalOrder = TraversalOrder.INORDER): string {
         return this._traverseInOrder().join(' | ').trim();
-    }
-
-    public clear(): void {
-        return super.clear();
     }
 
     // <editor-fold desc="protected implementations"

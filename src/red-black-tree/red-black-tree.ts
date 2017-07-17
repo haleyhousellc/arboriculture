@@ -20,13 +20,18 @@ export interface IRedBlackTreeNode<T> extends IBinarySearchTreeNode<T> {
     left: IRedBlackTreeNode<T>;
     right: IRedBlackTreeNode<T>;
     parent: IRedBlackTreeNode<T>;
+    isSentinel: boolean;
 }
 
 export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRedBlackTreeNode<T> {
-    protected _color: RedBlackTreeNodeColor;
+    protected _color: RedBlackTreeNodeColor = null;
+
+    private _isSentinel: boolean = null;
 
     constructor(data: T) {
         super(data);
+
+        this._isSentinel = !data;
     }
 
     public get color(): RedBlackTreeNodeColor {
@@ -38,27 +43,31 @@ export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRed
     }
 
     public get left(): IRedBlackTreeNode<T> {
-        return super.left as IRedBlackTreeNode<T>;
+        return this._left as IRedBlackTreeNode<T>;
     }
 
     public set left(newLeft: IRedBlackTreeNode<T>) {
-        super.left = newLeft;
+        this._left = newLeft;
     }
 
     public get right(): IRedBlackTreeNode<T> {
-        return super.right as IRedBlackTreeNode<T>;
+        return this._right as IRedBlackTreeNode<T>;
     }
 
     public set right(newRight: IRedBlackTreeNode<T>) {
-        super.right = newRight;
+        this._right = newRight;
     }
 
     public get parent(): IRedBlackTreeNode<T> {
-        return super.parent as IRedBlackTreeNode<T>;
+        return this._parent as IRedBlackTreeNode<T>;
     }
 
     public set parent(newParent: IRedBlackTreeNode<T>) {
-        super.parent = newParent;
+        this._parent = newParent;
+    }
+
+    public get isSentinel(): boolean {
+        return this._isSentinel;
     }
 }
 
@@ -156,10 +165,10 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         // Assign the appropriate parent to the new node.
         newNode.parent = currentParent;
 
-        // If the parent is null, the tree was empty and the new node becomes the new root.
+        // If the parent is still the sentinel, the tree was empty and the new node becomes the new root.
         if (currentParent === this._sentinel) this._root = newNode;
 
-        // Otherwise, determine whether the new node is the left or right child of it's parent and link it.
+        // Otherwise, determine whether the new node should be the left or right child of its parent and link it.
         else if (this._comparer(newNode.data, currentParent.data) < 0) currentParent.left = newNode;
         else currentParent.right = newNode;
 
@@ -317,125 +326,6 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
 
                     // Finally, rotate left.
                     this._rotateLeft(current.parent.parent);
-                }
-            }
-        }
-
-        // Finally, ensure the root is still black.  This will not re-violate any conditions.
-        (this._root as IRedBlackTreeNode<T>).color = RedBlackTreeNodeColor.BLACK;
-    }
-
-    /**
-     * This function adjusts node colors and performs any rotations needed after inserting a new node.
-     */
-    protected _fixInsertion1(newNode: IRedBlackTreeNode<T>): void {
-
-        let current = newNode;
-
-        // The candidate begins life red. If the candidate's parent isn't red, no violation should have occurred.
-        while (current.parent && current.parent.color === RedBlackTreeNodeColor.RED) {
-
-            // Define some local convenience members.
-            let parent      = current.parent;
-            let grandparent = parent.parent;
-
-            // The parent is the left child of the grandparent...
-            if (parent === grandparent.left) {
-
-                // Another genealogically-derived convenience member.
-                const uncle = grandparent.right;
-
-                // Case 1:
-                // Basically, is the uncle the same color as the candidate?  If so, adjust color of uncle (to match
-                // parent).
-                if (uncle && uncle.color === RedBlackTreeNodeColor.RED) {
-
-                    // Adjust colors of relatives.
-                    parent.color      = RedBlackTreeNodeColor.BLACK;
-                    uncle.color       = RedBlackTreeNodeColor.BLACK;
-                    grandparent.color = RedBlackTreeNodeColor.RED;
-
-                    // Set current to grandparent so the next iteration walks up the tree.  The next iteration begins
-                    // after this line, so there is no need to reset parent and grandparent yet.
-                    current = grandparent;
-                }
-
-                // Otherwise, assess rotation needs.
-                else {
-
-                    // Case 2:
-                    // Is the candidate a right child?
-                    if (current === parent.right) {
-
-                        // Walk up the tree one step...
-                        current     = parent;
-                        parent      = current.parent;
-                        grandparent = parent.parent;
-
-                        // ...then rotate left.
-                        this._rotateLeft(current);
-                    }
-
-                    // Case 3 (case 2 falls through to case 3)
-                    // Adjust colors of parent and grandparent.
-                    parent.color = RedBlackTreeNodeColor.BLACK;
-
-                    if (grandparent) {
-                        grandparent.color = RedBlackTreeNodeColor.RED;
-
-                        // Finally, rotate right.
-                        this._rotateRight(grandparent);
-                    }
-                }
-            }
-
-            // ...or the parent is the right child of the grandparent.  A mirror of the above.
-            else {
-
-                // Another genealogically-derived convenience member.
-                const uncle = grandparent.left;
-
-                // Case 1:
-                // Basically, is the uncle the same color as the candidate?  If so, adjust color of uncle (to match
-                // parent).
-                if (uncle && uncle.color === RedBlackTreeNodeColor.RED) {
-
-                    // Adjust colors of relatives.
-                    parent.color      = RedBlackTreeNodeColor.BLACK;
-                    uncle.color       = RedBlackTreeNodeColor.BLACK;
-                    grandparent.color = RedBlackTreeNodeColor.RED;
-
-                    // Set current to grandparent so the next iteration walks up the tree.  The next iteration begins
-                    // after this line, so there is no need to reset parent and grandparent yet.
-                    current = grandparent;
-                }
-
-                // Otherwise, assess rotation needs.
-                else {
-
-                    // Case 2:
-                    // Is the candidate a left child?
-                    if (current === parent.left) {
-
-                        // Walk up the tree one step...
-                        current     = parent;
-                        parent      = current.parent;
-                        grandparent = parent.parent;
-
-                        // ...then rotate right.
-                        this._rotateRight(current);
-                    }
-
-                    // Case 3 (case 2 falls through to case 3)
-                    // Adjust colors of parent and grandparent.
-                    parent.color = RedBlackTreeNodeColor.BLACK;
-
-                    if (grandparent) {
-                        grandparent.color = RedBlackTreeNodeColor.RED;
-
-                        // Finally, rotate left.
-                        this._rotateLeft(grandparent);
-                    }
                 }
             }
         }
