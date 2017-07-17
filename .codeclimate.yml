@@ -4,17 +4,17 @@ engines:
     channel: beta
    markdownlint:
      enabled: true
+  fixme:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+        javascript:
 ratings:
   paths:
   - src/**/*
   - examples/**/*
-  - "**.md"
-fixme:
-  enabled: true
-duplication:
-  enabled: true
-  config:
-    languages:
-      javascript:
+  - "**.md"x
 exclude_paths:
 - node_modules
