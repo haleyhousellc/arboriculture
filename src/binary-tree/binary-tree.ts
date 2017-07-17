@@ -12,9 +12,9 @@ export interface IBinaryTreeNode<T> {
  * Implementation of base binary tree node
  */
 export class BinaryTreeNode<T> implements IBinaryTreeNode<T> {
-    public _data: T;
-    public _left: IBinaryTreeNode<T>;
-    public _right: IBinaryTreeNode<T>;
+    protected _data: T;
+    protected _left: IBinaryTreeNode<T>;
+    protected _right: IBinaryTreeNode<T>;
 
     constructor(data: T) {
         this._data  = data;
@@ -115,6 +115,7 @@ export abstract class BinaryTree<T> implements IBinaryTree<T> {
      */
     public clear(): void {
         this._root = null;
+        this._count = 0;
     }
 
     /**

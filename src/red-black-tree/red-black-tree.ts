@@ -93,15 +93,17 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     }
 
     public find(data: T): IRedBlackTreeNode<T> {
-        return super.find(data) as IRedBlackTreeNode<T>;
+        const node = this._find(data);
+
+        return node === this._sentinel ? null : node;
     }
 
     public min(): IRedBlackTreeNode<T> {
-        return super.min() as IRedBlackTreeNode<T>;
+        return this._min();
     }
 
     public max(): IRedBlackTreeNode<T> {
-        return super.max() as IRedBlackTreeNode<T>;
+        return this._max();
     }
 
     public insert(data: T): IRedBlackTree<T> {
@@ -114,6 +116,10 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         this._remove(data);
 
         return this;
+    }
+
+    public clear(): void {
+        return this._clear();
     }
 
     public traverse(): T[] {
@@ -177,10 +183,10 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
      */
     protected _remove(data: T): IRedBlackTreeNode<T> {
 
-        const candidate: IRedBlackTreeNode<T> = this._find(data) as IRedBlackTreeNode<T>;
+        const candidate: IRedBlackTreeNode<T> = this._find(data);
 
         // If the candidate is null, it was not present in the tree.
-        if (!candidate) return null;
+        if (candidate === this._sentinel) return null;
 
         // Declare a replacement for the deleted node.  This begins as it's successor, but is spliced out of it's
         // original location and is substituted back into the tree at the location of the deleted node.
@@ -529,6 +535,80 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         }
 
         return orderedData;
+    }
+
+    /**
+     * Search the tree for a given piece of data - iteratively.  A recursive solution is prettier and cooler, but it has
+     * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
+     * node if the value exists in the tree.  If the value is not found, returns null.
+     */
+    protected _find(targetData: T,
+                    startingNode: IRedBlackTreeNode<T> = this._root as IRedBlackTreeNode<T>): IRedBlackTreeNode<T>
+    {
+
+        // Just make sure the target is legitimate.
+        if (targetData == null) return null;
+
+        // Get a local variable.
+        let currentNode = startingNode;
+
+        // Loop until the current node is null (i.e. target data is not found), or the target data is found (comparer
+        // returns zero).
+        while (currentNode !== this._sentinel && this._comparer(targetData, currentNode.data) !== 0) {
+
+            // If comparer returns less than zero, target data is less than current node data - traverse left;
+            if (this._comparer(targetData, currentNode.data) < 0) currentNode = currentNode.left;
+
+            // If comparer returns greater than zero, target data is greater than current node data - traverse right.
+            else currentNode = currentNode.right;
+        }
+
+        // Return the current node (an actual node if the target is found, null if not).
+        return currentNode;
+    }
+
+    /**
+     * Search the tree for it's maximum value - iteratively.  A recursive solution is prettier and cooler, but it has
+     * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
+     * node if the value exists in the tree.  If the value is not found, returns null.
+     */
+    protected _max(root: IRedBlackTreeNode<T> = this._root as IRedBlackTreeNode<T>): IRedBlackTreeNode<T> {
+
+        // Get a local variable.
+        let currentNode: IRedBlackTreeNode<T> = root;
+
+        // Iterate right until a leaf is reached.
+        while (currentNode.right !== this._sentinel) {
+            currentNode = currentNode.right;
+        }
+
+        return currentNode;
+    }
+
+    /**
+     * Search the tree for it's minimum value - iteratively.  A recursive solution is prettier and cooler, but it has
+     * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
+     * node if the value exists in the tree.  If the value is not found, returns null.
+     */
+    protected _min(root: IRedBlackTreeNode<T> = this._root as IRedBlackTreeNode<T>): IRedBlackTreeNode<T> {
+
+        // Get a local variable.
+        let currentNode: IRedBlackTreeNode<T> = root;
+
+        // Iterate left until a leaf is reached.
+        while (currentNode.left !== this._sentinel) {
+            currentNode = currentNode.left;
+        }
+
+        return currentNode;
+    }
+
+    /**
+     * This method clears the tree.
+     */
+    protected _clear(): void {
+        super.clear();
+        this._root = this._sentinel;
     }
 
     // </editor-fold>

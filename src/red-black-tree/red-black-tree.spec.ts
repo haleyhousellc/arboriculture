@@ -26,6 +26,11 @@ describe('red-black-tree.ts', () => {
         done();
     });
 
+    afterEach((done) => {
+        rbt.clear();
+        done();
+    });
+
     describe('red-black-tree', () => {
         describe('#toString', () => {
             it(`should traverse its elements in order`, (done) => {

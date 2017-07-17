@@ -110,6 +110,10 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
         return this._traverseInOrder().join(' | ').trim();
     }
 
+    public clear(): void {
+        return super.clear();
+    }
+
     // <editor-fold desc="protected implementations"
 
     /**
@@ -265,13 +269,6 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
         }
 
         return currentNode as IBinarySearchTreeNode<T>;
-    }
-
-    /**
-     * Clears the tree.  Simply set the root to null.
-     */
-    protected _clear(): void {
-        this._root = null;
     }
 
     protected _traverseInOrder(): T[] {
