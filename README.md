@@ -1,6 +1,7 @@
 # Arboriculture
 
 [![npm version](https://badge.fury.io/js/arboriculture.svg)](https://badge.fury.io/js/arboriculture)
+[![Build Status](https://travis-ci.org/haleyhousellc/arboriculture.svg?branch=master)](https://travis-ci.org/haleyhousellc/arboriculture)
 
 Arboriculture is a community-supported tree library providing a set of common tree data structures for TypeScript and
 JavaScript projects.  Unleash your inner lumberjack.
