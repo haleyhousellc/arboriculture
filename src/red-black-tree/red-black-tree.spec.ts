@@ -1,8 +1,9 @@
 import { assert, expect } from 'chai';
 import 'mocha';
 
-import { IBinaryTreeNode } from '../binary-tree/binary-tree';
+import { IBinaryTreeNode, IComparer } from '../binary-tree/binary-tree';
 import { IRedBlackTree, RedBlackTree } from './red-black-tree';
+import { generateUuid } from '../util';
 
 describe('red-black-tree.ts', () => {
 
@@ -40,7 +41,7 @@ describe('red-black-tree.ts', () => {
                 const s1 = rbt.toString();
                 rbt.insert(6);
                 const s2 = rbt.toString();
-                assert(s1 === s2, `the tree should remain unchanged`);
+                expect(s1).to.equal(s2);
                 expect(rbt.count).to.equal(8);
                 done();
             });
@@ -81,7 +82,7 @@ describe('red-black-tree.ts', () => {
             });
         });
 
-        describe('arbitrary object types', () => {
+        describe('arbitrary object types, suite 1', () => {
             interface ITestType {
                 a: string;
                 b: string;
@@ -120,7 +121,7 @@ describe('red-black-tree.ts', () => {
                 },
             };
 
-            const rbtAlt: IRedBlackTree<ITestType> = new RedBlackTree<ITestType>(null, testComparer);
+            const rbtAlt: IRedBlackTree<ITestType> = new RedBlackTree<ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 rbtAlt.insert(t0).insert(t2).insert(t1);

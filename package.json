@@ -16,6 +16,7 @@
     "compile:examples": "tsc examples/*.demo.ts --target es6",
     "compile:tests": "tsc src/**/*.spec.ts --target es6",
     "lint": "tslint .",
+    "pretest": "npm run clean:src",
     "test": "mocha --require ts-node/register src/**/*.spec.ts",
     "securitycheck": "nsp check",
     "predoc": "npm run clean:docs",

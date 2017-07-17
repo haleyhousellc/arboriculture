@@ -3,9 +3,8 @@ import {
     BinarySearchTreeNode,
     IBinarySearchTree,
     IBinarySearchTreeNode,
-    IBinarySearchTreeNodeRemovalResult,
 } from '../binary-search-tree/binary-search-tree';
-import { defaultComparer, IComparer } from '../binary-tree/binary-tree';
+import { defaultComparer, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
 
 export enum RedBlackTreeNodeColor {
     RED,
@@ -28,9 +27,6 @@ export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRed
 
     constructor(data: T) {
         super(data);
-
-        // red-black nodes are always red initially
-        this._color = RedBlackTreeNodeColor.RED;
     }
 
     public get color(): RedBlackTreeNodeColor {
@@ -67,17 +63,6 @@ export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRed
 }
 
 /**
- * A complex return type for the internally (protected) member function #_remove.  This object provides the caller with
- * all important nodes involved in the removal of a candidate.  The candidate's replacement and the replacement's
- * successor are included in addition to the node that was actually removed.
- */
-export interface IRedBlackTreeNodeRemovalResult<T> extends IBinarySearchTreeNodeRemovalResult<T> {
-    candidate: IRedBlackTreeNode<T>;
-    replacement: IRedBlackTreeNode<T>;
-    newSuccessor: IRedBlackTreeNode<T>;
-}
-
-/**
  * This interface simply redefines some return types inherited from the standard IBinarySearchTree<T>.
  */
 export interface IRedBlackTree<T> extends IBinarySearchTree<T> {
@@ -93,8 +78,14 @@ export interface IRedBlackTree<T> extends IBinarySearchTree<T> {
  */
 export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTree<T> {
 
-    constructor(data: T = null, comparer: IComparer<T> = defaultComparer) {
-        super(data, comparer);
+    private _sentinel: RedBlackTreeNode<T> = null;
+
+    constructor(comparer: IComparer<T> = defaultComparer) {
+        super(comparer);
+
+        this._sentinel       = new RedBlackTreeNode<T>(null);
+        this._sentinel.color = RedBlackTreeNodeColor.BLACK;
+        this._root           = this._sentinel;
     }
 
     public get count(): number {
@@ -129,45 +120,103 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         return this._traverseInOrder();
     }
 
+    public toString(order: TraversalOrder = TraversalOrder.INORDER): string {
+        return this._traverseInOrder().join(' | ').trim();
+    }
+
     // <editor-fold desc="protected implementations"
 
+    /**
+     * The insert procedure differs slightly from the base insert.
+     */
     protected _insert(data: T): IRedBlackTreeNode<T> {
+        const newNode: IRedBlackTreeNode<T> = new RedBlackTreeNode<T>(data);
 
-        // Begin by inserting like normal, leveraging the inherited #_insert method.
-        const newNode: IRedBlackTreeNode<T> = super._insert(data) as IRedBlackTreeNode<T>;
+        let currentParent: IRedBlackTreeNode<T> = this._sentinel;
+        let current: IRedBlackTreeNode<T>       = this._root as IRedBlackTreeNode<T>;
 
-        // If the new node is null, it is a duplicate.
-        if (!newNode) return newNode;
+        // Iterate over the tree to find the new node's parent.
+        while (current !== this._sentinel) {
+            currentParent = current;
 
-        // Next, color the node red.
+            // Don't allow duplicates, so simply return if the data is already present in the tree.
+            if (this._comparer(current.data, newNode.data) === 0) return null;
+
+            // Otherwise traverse the appropriate child.
+            if (this._comparer(newNode.data, current.data) < 0) current = current.left;
+            else current = current.right;
+        }
+
+        // Assign the appropriate parent to the new node.
+        newNode.parent = currentParent;
+
+        // If the parent is null, the tree was empty and the new node becomes the new root.
+        if (currentParent === this._sentinel) this._root = newNode;
+
+        // Otherwise, determine whether the new node is the left or right child of it's parent and link it.
+        else if (this._comparer(newNode.data, currentParent.data) < 0) currentParent.left = newNode;
+        else currentParent.right = newNode;
+
+        newNode.left  = this._sentinel;
+        newNode.right = this._sentinel;
         newNode.color = RedBlackTreeNodeColor.RED;
 
-        // Fix any violation.
+        // Fix any issues that may have arisen with the addition of another red node.
         this._fixInsertion(newNode);
 
+        // Finally, admit that a node has been added ;).
+        this._count++;
+
+        // Return the newly inserted node.
         return newNode;
     }
 
-    protected _remove(data: T): IRedBlackTreeNodeRemovalResult<T> {
+    /**
+     * This is essentially a copy of the base delete procedure.  However, the assignment of newSuccessor.parent to
+     * replacement.parent is unconditional.  Also new is the comparison to the sentinel node, rather than a null-check.
+     */
+    protected _remove(data: T): IRedBlackTreeNode<T> {
 
-        // Begin by inserting like normal, leveraging the inherited #_insert method.
-        const { candidate, replacement, newSuccessor } = super._remove(data);
+        const candidate: IRedBlackTreeNode<T> = this._find(data) as IRedBlackTreeNode<T>;
 
         // If the candidate is null, it was not present in the tree.
-        if (!candidate) return { candidate: null, replacement: null, newSuccessor: null };
+        if (!candidate) return null;
+
+        // Declare a replacement for the deleted node.  This begins as it's successor, but is spliced out of it's
+        // original location and is substituted back into the tree at the location of the deleted node.
+        let replacement: IRedBlackTreeNode<T> = null;
+
+        // If the node to be deleted has less than 2 children (i.e. 0 or 1), designate it as it's own replacement
+        if (candidate.left === this._sentinel || candidate.right === this._sentinel) replacement = candidate;
+
+        // Otherwise set the replacement as the candidate's immediate successor.
+        else replacement = this._findSuccessor(candidate) as IRedBlackTreeNode<T>;
+
+        // Declare a new successor.  This is either the replacement's only child, or null.  After the replacement takes
+        // over in the old position of the deleted node, this node represents the replacement's immediate successor.
+        let newSuccessor: IRedBlackTreeNode<T> = null;
+
+        if (replacement.left !== this._sentinel) newSuccessor = replacement.left;
+        else newSuccessor = replacement.right;
+
+        // This is a change from the standard delete procedure.
+        newSuccessor.parent = replacement.parent;
+
+        if (replacement.parent === this._sentinel) this._root = newSuccessor;
+        else if (replacement === replacement.parent.left) replacement.parent.left = newSuccessor;
+        else replacement.parent.right = newSuccessor;
+
+        if (replacement !== candidate) candidate.data = replacement.data;
 
         // If the node that replaced the deleted node in the tree is black, fix any violations that exist.
-        if ((replacement as IRedBlackTreeNode<T>).color === RedBlackTreeNodeColor.BLACK) {
-            this._fixDeletion(newSuccessor as IRedBlackTreeNode<T>);
-        }
+        if (replacement.color === RedBlackTreeNodeColor.BLACK) this._fixDeletion(newSuccessor);
+
+        // Finally, admit that a node has been removed ;).
+        this._count--;
 
         // Return all parties involved in node removal: the candidate (deleted node), the candidate's replacement in the
         // tree, and the new successor (successor to the replacement).
-        return {
-            candidate:    candidate as IRedBlackTreeNode<T>,
-            newSuccessor: newSuccessor as IRedBlackTreeNode<T>,
-            replacement:  replacement as IRedBlackTreeNode<T>,
-        };
+        return newSuccessor;
     }
 
     /**
@@ -223,11 +272,14 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
 
                     // Case 3 (case 2 falls through to case 3)
                     // Adjust colors of parent and grandparent.
-                    parent.color      = RedBlackTreeNodeColor.BLACK;
-                    grandparent.color = RedBlackTreeNodeColor.RED;
+                    parent.color = RedBlackTreeNodeColor.BLACK;
 
-                    // Finally, rotate right.
-                    this._rotateRight(grandparent);
+                    if (grandparent) {
+                        grandparent.color = RedBlackTreeNodeColor.RED;
+
+                        // Finally, rotate right.
+                        this._rotateRight(grandparent);
+                    }
                 }
             }
 
@@ -270,11 +322,14 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
 
                     // Case 3 (case 2 falls through to case 3)
                     // Adjust colors of parent and grandparent.
-                    parent.color      = RedBlackTreeNodeColor.BLACK;
-                    grandparent.color = RedBlackTreeNodeColor.RED;
+                    parent.color = RedBlackTreeNodeColor.BLACK;
 
-                    // Finally, rotate left.
-                    this._rotateLeft(grandparent);
+                    if (grandparent) {
+                        grandparent.color = RedBlackTreeNodeColor.RED;
+
+                        // Finally, rotate left.
+                        this._rotateLeft(grandparent);
+                    }
                 }
             }
         }
@@ -287,19 +342,20 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
      * This function adjusts node colors and performs any rotations needed after deleting a node.
      */
     protected _fixDeletion(candidate: IRedBlackTreeNode<T>): void {
+
         while (candidate !== this._root && candidate.color === RedBlackTreeNodeColor.BLACK) {
-            const parent = candidate.parent;
+            let sibling: IRedBlackTreeNode<T> = null;
 
             // The deleted node is a left child...
-            if (candidate === parent.left) {
-                let sibling = parent.right;
+            if (candidate === candidate.parent.left) {
+                sibling = candidate.parent.right;
 
                 // Case 1: candidate's sibling is red.
                 if (sibling.color === RedBlackTreeNodeColor.RED) {
-                    sibling.color = RedBlackTreeNodeColor.BLACK;
-                    parent.color  = RedBlackTreeNodeColor.RED;
-                    this._rotateLeft(parent);
-                    sibling = parent.right;
+                    sibling.color          = RedBlackTreeNodeColor.BLACK;
+                    candidate.parent.color = RedBlackTreeNodeColor.RED;
+                    this._rotateLeft(candidate.parent);
+                    sibling = candidate.parent.right;
                 }
 
                 // Case 2: candidate's sibling is black, and both of sibling's children are black.
@@ -307,36 +363,38 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
                     && sibling.right.color === RedBlackTreeNodeColor.BLACK)
                 {
                     sibling.color = RedBlackTreeNodeColor.RED;
-                    candidate   = parent;
-                } else {
+                    candidate     = candidate.parent;
+                }
+                else {
 
                     // Case 3: candidate's sibling is black, sibling's left child is red and sibling's right child is
                     // black.
                     if (sibling.right.color === RedBlackTreeNodeColor.BLACK) {
                         sibling.left.color = RedBlackTreeNodeColor.BLACK;
+                        sibling.color      = RedBlackTreeNodeColor.RED;
                         this._rotateRight(sibling);
-                        sibling = parent.right;
+                        sibling = candidate.parent.right;
                     }
 
                     // Case 4 (case 3 falls through):  candidate's sibling is black, and sibling's right child is red.
-                    sibling.color       = parent.color;
-                    parent.color        = RedBlackTreeNodeColor.BLACK;
-                    sibling.right.color = RedBlackTreeNodeColor.BLACK;
-                    this._rotateLeft(parent);
+                    sibling.color          = candidate.parent.color;
+                    candidate.parent.color = RedBlackTreeNodeColor.BLACK;
+                    sibling.right.color    = RedBlackTreeNodeColor.BLACK;
+                    this._rotateLeft(candidate.parent);
                     candidate = this._root as IRedBlackTreeNode<T>;
                 }
             }
 
             // ...or it is a right child.
             else {
-                let sibling = parent.left;
+                sibling = candidate.parent.left;
 
                 // Case 1: candidate's sibling is red.
                 if (sibling.color === RedBlackTreeNodeColor.RED) {
-                    sibling.color = RedBlackTreeNodeColor.BLACK;
-                    parent.color  = RedBlackTreeNodeColor.RED;
-                    this._rotateRight(parent);
-                    sibling = parent.left;
+                    sibling.color          = RedBlackTreeNodeColor.BLACK;
+                    candidate.parent.color = RedBlackTreeNodeColor.RED;
+                    this._rotateRight(candidate.parent);
+                    sibling = candidate.parent.left;
                 }
 
                 // Case 2: candidate's sibling is black, and both of sibling's children are black.
@@ -344,29 +402,28 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
                     && sibling.left.color === RedBlackTreeNodeColor.BLACK)
                 {
                     sibling.color = RedBlackTreeNodeColor.RED;
-                    candidate   = parent;
-                } else {
+                    candidate     = candidate.parent;
+                }
+                else {
 
-                    // Case 3: candidate's sibling is black, sibling's right child is red and sibling's left child is
+                    // Case 3: candidate's sibling is black, sibling's left child is red and sibling's right child is
                     // black.
                     if (sibling.left.color === RedBlackTreeNodeColor.BLACK) {
                         sibling.right.color = RedBlackTreeNodeColor.BLACK;
+                        sibling.color       = RedBlackTreeNodeColor.RED;
                         this._rotateLeft(sibling);
-                        sibling = parent.left;
+                        sibling = candidate.parent.left;
                     }
 
-                    // Case 4 (case 3 falls through):  candidate's sibling is black, and sibling's left child is red.
-                    sibling.color      = parent.color;
-                    parent.color       = RedBlackTreeNodeColor.BLACK;
-                    sibling.left.color = RedBlackTreeNodeColor.BLACK;
-                    this._rotateRight(parent);
+                    // Case 4 (case 3 falls through):  candidate's sibling is black, and sibling's right child is red.
+                    sibling.color          = candidate.parent.color;
+                    candidate.parent.color = RedBlackTreeNodeColor.BLACK;
+                    sibling.left.color     = RedBlackTreeNodeColor.BLACK;
+                    this._rotateRight(candidate.parent);
                     candidate = this._root as IRedBlackTreeNode<T>;
                 }
             }
         }
-
-        // Finally, set it's color to black.
-        candidate.color = RedBlackTreeNodeColor.BLACK;
     }
 
     /**
@@ -375,7 +432,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     protected _rotateLeft(candidate: IRedBlackTreeNode<T>): void {
 
         // Left rotation only works if the candidate has a right child.
-        if (!candidate.right) return;
+        if (candidate.right === this._sentinel) return;
 
         // Define the candidate's replacement.
         const replacement = candidate.right;
@@ -384,14 +441,14 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         candidate.right = replacement.left;
 
         // If the left child exists, reset its parent to the candidate.
-        if (replacement.left) replacement.left.parent = candidate;
+        if (replacement.left !== this._sentinel) replacement.left.parent = candidate;
 
         // Ensure the replacement now references its new parent (currently, the candidate's parent).
         replacement.parent = candidate.parent;
 
         // If the candidate didn't have a parent, the replacement won't either.  The replacement is becoming the new
         // root.
-        if (!candidate.parent) this._root = replacement;
+        if (candidate.parent === this._sentinel) this._root = replacement;
 
         // Otherwise, determine which subtree of the candidate should now be parented by the replacement.
         else if (candidate === candidate.parent.left) candidate.parent.left = replacement;
@@ -410,7 +467,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     protected _rotateRight(candidate: IRedBlackTreeNode<T>): void {
 
         // Right rotation only works if the candidate has a left child.
-        if (!candidate.left) return;
+        if (candidate.left === this._sentinel) return;
 
         // Define the candidate's replacement.
         const replacement = candidate.left;
@@ -419,14 +476,14 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         candidate.left = replacement.right;
 
         // If the right child exists, reset its parent to the candidate.
-        if (replacement.right) replacement.right.parent = candidate;
+        if (replacement.right !== this._sentinel) replacement.right.parent = candidate;
 
         // Ensure the replacement now references its new parent (currently, the candidate's parent).
         replacement.parent = candidate.parent;
 
         // If the candidate didn't have a parent, the replacement won't either.  The replacement is becoming the new
         // root.
-        if (!candidate.parent) this._root = replacement;
+        if (candidate.parent === this._sentinel) this._root = replacement;
 
         // Otherwise, determine which subtree of the candidate should now be parented by the replacement.
         else if (candidate === candidate.parent.right) candidate.parent.right = replacement;
@@ -437,6 +494,41 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
 
         // Finally, give the candidate a new parent.
         candidate.parent = replacement;
+    }
+
+    protected _traverseInOrder(): T[] {
+        if (this._root === this._sentinel) return [];
+
+        const orderedData: T[] = [];
+
+        // Stacks make sense for what essentially amounts to a depth-first search.
+        const stack: IRedBlackTreeNode<T>[] = [];
+        let current: IRedBlackTreeNode<T>   = this._root as IRedBlackTreeNode<T>;
+
+        // Build initial stack by traversing left
+        while (current !== this._sentinel) {
+            stack.push(current);
+            current = current.left;
+        }
+
+        // Now traverse the tree from the minimum value.
+        while (stack.length > 0) {
+            current = stack.pop();
+            orderedData.push(current.data);
+
+            // If the current node has a right child, traverse that subtree before backing out.
+            if (current.right !== this._sentinel) {
+                current = current.right;
+
+                // Like above, push until a leaf is reached.
+                while (current !== this._sentinel) {
+                    stack.push(current);
+                    current = current.left;
+                }
+            }
+        }
+
+        return orderedData;
     }
 
     // </editor-fold>

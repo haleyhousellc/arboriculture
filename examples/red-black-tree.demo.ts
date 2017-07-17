@@ -59,4 +59,5 @@ const myComparer = (a: IMyObject, b: IMyObject): number => {
     return a.member2 - b.member2;
 };
 
-const rbtObject: IRedBlackTree<IMyObject> = new RedBlackTree<IMyObject>(myObject0, myComparer);
+const rbtObject: IRedBlackTree<IMyObject> = new RedBlackTree<IMyObject>(myComparer);
+rbtObject.insert(myObject0);

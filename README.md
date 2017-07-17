@@ -46,11 +46,6 @@ Get a new tree:
 const bst: IBinarySearchTree<number> = new BinarySearchTree<number>();
 ```
 
-Get a new tree with an initial value:
-```typescript
-const bst: IBinarySearchTree<number> = new BinarySearchTree<number>(5);
-```
-
 Insert values:
 ```typescript
 bst.insert(2);
@@ -106,7 +101,8 @@ const myComparer = (a: IMyObject, b: IMyObject): number => {
     return a.member2 - b.member2;
 };
 
-const bst: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myObject0, myComparer);
+const bst: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myComparer);
+bst.insert(myObject0);
 ```
 
 ## Package Scripts

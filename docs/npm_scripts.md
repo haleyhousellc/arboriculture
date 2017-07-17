@@ -159,6 +159,16 @@ npm run test
 This script will run all Mocha/Chai tests in the project.
 <br><br>
 
+##### pretest <a id="pretest"></a>
+
+*Note: this step does not need to be run manually*
+
+```bash
+npm run pretest
+```
+This simply cleans the `src` directory.
+<br><br>
+
 ### Transpiling <a id="transpiling"></a>
 
 ---

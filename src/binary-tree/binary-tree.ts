@@ -1,4 +1,3 @@
-
 /**
  * Base binary tree node interface
  */
@@ -98,10 +97,10 @@ export abstract class BinaryTree<T> implements IBinaryTree<T> {
     protected _comparer: IComparer<T>;
     protected _count: number;
 
-    constructor(data: T, comparer: IComparer<T>) {
-        this._root     = data ? new BinaryTreeNode<T>(data) : null;
-        this._count    = 0;
+    constructor(comparer: IComparer<T>) {
+        this._root     = null;
         this._comparer = comparer;
+        this._count    = 0;
     }
 
     /**

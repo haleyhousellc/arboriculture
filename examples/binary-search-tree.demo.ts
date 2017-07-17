@@ -60,4 +60,5 @@ const myComparer = (a: IMyObject, b: IMyObject): number => {
     return a.member2 - b.member2;
 };
 
-const bstObject: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myObject0, myComparer);
+const bstObject: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myComparer);
+bstObject.insert(myObject0);

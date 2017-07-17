@@ -120,7 +120,7 @@ describe('binary-search-tree.ts', () => {
                 },
             };
 
-            const bstAlt: IBinarySearchTree<ITestType> = new BinarySearchTree<ITestType>(null, testComparer);
+            const bstAlt: IBinarySearchTree<ITestType> = new BinarySearchTree<ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1);

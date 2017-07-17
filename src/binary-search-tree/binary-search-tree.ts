@@ -1,7 +1,7 @@
 import {
-    defaultComparer,
     BinaryTree,
     BinaryTreeNode,
+    defaultComparer,
     IBinaryTree,
     IBinaryTreeNode,
     IComparer,
@@ -61,23 +61,12 @@ export interface IBinarySearchTree<T> extends IBinaryTree<T> {
 }
 
 /**
- * A complex return type for the internally (protected) member function #_remove.  This object provides the caller with
- * all important nodes involved in the removal of a candidate.  The candidate's replacement and the replacement's
- * successor are included in addition to the node that was actually removed.
- */
-export interface IBinarySearchTreeNodeRemovalResult<T> {
-    candidate: IBinarySearchTreeNode<T>;
-    newSuccessor: IBinarySearchTreeNode<T>;
-    replacement: IBinarySearchTreeNode<T>;
-}
-
-/**
  * Simple binary search tree supporting find, insert, and remove operations.
  */
 export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchTree<T> {
 
-    constructor(data: T = null, comparer: IComparer<T> = defaultComparer) {
-        super(data, comparer);
+    constructor(comparer: IComparer<T> = defaultComparer) {
+        super(comparer);
     }
 
     public get count(): number {
@@ -166,13 +155,13 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
      * Delete the given data from the tree - iteratively.  A recursive solution is prettier and cooler, but it has the
      * potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).
      */
-    protected _remove(data: T): IBinarySearchTreeNodeRemovalResult<T> {
+    protected _remove(data: T): IBinaryTreeNode<T> {
 
         // Find the node first, and return if it isn't found.
         const candidate = this._find(data);
-        if (!candidate) return { candidate: null, replacement: null, newSuccessor: null };
+        if (!candidate) return null;
 
-        // Declare a replacement for the deleted node.  This beings as it's successor, but is spliced out of it's
+        // Declare a replacement for the deleted node.  This begins as it's successor, but is spliced out of it's
         // original location and is substituted back into the tree at the location of the deleted node.
         let replacement: IBinarySearchTreeNode<T> = null;
 
@@ -209,7 +198,7 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
 
         // Return all parties involved in node removal: the candidate (deleted node), the candidate's replacement in the
         // tree, and the new successor (successor to the replacement).
-        return { candidate, replacement, newSuccessor };
+        return replacement;
     }
 
     /**
