@@ -20,7 +20,7 @@ export type UnionKeyToValue<U extends string> = { [K in U]: K; };
 /**
  * The current package version
  */
-export const VERSION: string    = '0.1.10';
+export const VERSION: string    = '0.1.11';
 
 /**
  * The user agent string
