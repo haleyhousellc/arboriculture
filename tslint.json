@@ -71,8 +71,5 @@
     "prefer-switch": true,
     "semicolon": [true, "always"],
     "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}]
-  },
-  "jsRules": {},
-  "rulesDirectory": [],
-  "exclude": "build/**/*.js"
+  }
 }

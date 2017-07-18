@@ -1,6 +1,8 @@
 import { BinarySearchTree, IBinarySearchTree } from '../src/binary-search-tree/binary-search-tree';
 import { IBinaryTreeNode } from '../src/binary-tree/binary-tree';
 
+/* tslint:disable:no-magic-numbers */
+
 // create a new empty binary search tree holding numerical values
 const bst: IBinarySearchTree<number> = new BinarySearchTree<number>();
 console.log(bst.toString());  // ''
@@ -56,9 +58,7 @@ interface IMyObject {
 }
 
 const myObject0 = { member1: 'hello there', member2: 35 };
-const myComparer = (a: IMyObject, b: IMyObject): number => {
-    return a.member2 - b.member2;
-};
+const myComparer = (a: IMyObject, b: IMyObject): number => a.member2 - b.member2;
 
 const bstObject: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myComparer);
 bstObject.insert(myObject0);

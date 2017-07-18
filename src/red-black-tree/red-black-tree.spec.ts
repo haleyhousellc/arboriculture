@@ -1,9 +1,10 @@
 import { assert, expect } from 'chai';
 import 'mocha';
 
-import { IBinaryTreeNode, IComparer } from '../binary-tree/binary-tree';
+import { IBinaryTreeNode } from '../binary-tree/binary-tree';
 import { IRedBlackTree, RedBlackTree } from './red-black-tree';
-import { generateUuid } from '../util';
+
+/* tslint:disable:no-magic-numbers */
 
 describe('red-black-tree.ts', () => {
 

@@ -1,5 +1,7 @@
 import { IRedBlackTree, IRedBlackTreeNode, RedBlackTree } from '../src/red-black-tree/red-black-tree';
 
+/* tslint:disable:no-magic-numbers */
+
 // create a new empty binary search tree holding numerical values
 const rbt: IRedBlackTree<number> = new RedBlackTree<number>();
 console.log(rbt.toString());  // ''
@@ -55,9 +57,7 @@ interface IMyObject {
 }
 
 const myObject0 = { member1: 'hello there', member2: 35 };
-const myComparer = (a: IMyObject, b: IMyObject): number => {
-    return a.member2 - b.member2;
-};
+const myComparer = (a: IMyObject, b: IMyObject): number => a.member2 - b.member2;
 
 const rbtObject: IRedBlackTree<IMyObject> = new RedBlackTree<IMyObject>(myComparer);
 rbtObject.insert(myObject0);

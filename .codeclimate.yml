@@ -5,11 +5,12 @@ engines:
     config: tslint.json
   fixme:
     enabled: true
+  markdownlint:
+    enabled: true
 ratings:
   paths:
   - "**.ts"
+  - "**.md"
 exclude_paths:
 - node_modules
 - "**.d.ts"
-- "**.spec.ts"
-- "**.demo.ts"

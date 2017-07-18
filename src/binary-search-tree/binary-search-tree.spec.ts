@@ -4,6 +4,8 @@ import 'mocha';
 import { IBinaryTreeNode } from '../binary-tree/binary-tree';
 import { BinarySearchTree, IBinarySearchTree } from './binary-search-tree';
 
+/* tslint:disable:no-magic-numbers */
+
 describe('binary-search-tree.ts', () => {
 
     let bst: IBinarySearchTree<number>;
