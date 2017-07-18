@@ -1,2 +1,1 @@
-git_recurse true
-style "docs/mdstyles.rb"
+style 'config/mdstyles.rb'

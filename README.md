@@ -10,12 +10,17 @@ Arboriculture is a community-supported tree library providing a set of common tr
 JavaScript projects.  Unleash your inner lumberjack.
 
 >###### ISC License (ISC)
-> 
+>
 >###### Copyright 2017 HaleyHouse LLC
 >
->###### Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+>###### Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby
+>granted, provided that the above copyright notice and this permission notice appear in all copies.
 >
->###### THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+>###### THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING
+>ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+>INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+>ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+>OF THIS SOFTWARE.
 
 ## Features
 
@@ -41,8 +46,8 @@ npm install haleyhousellc/arboriculture
 
 ## Quick Start
 
-A few basic usage examples are shown.  Most trees have similar operations, so a basic 
-[Binary Search Tree](https://github.com/haleyhousellc/arboriculture/blob/master/src/binary-search-tree/binary-search-tree.ts) 
+A few basic usage examples are shown.  Most trees have similar operations, so a basic
+[Binary Search Tree](https://github.com/haleyhousellc/arboriculture/blob/master/src/binary-search-tree/binary-search-tree.ts)
 is shown for convenience.
 
 Get a new tree:
@@ -111,8 +116,8 @@ bst.insert(myObject0);
 
 ## Package Scripts
 
-The most common scripts are demonstrated here, for the full list see the 
-[package.json](https://github.com/haleyhousellc/arboriculture/blob/master/package.json) file or the 
+The most common scripts are demonstrated here, for the full list see the
+[package.json](https://github.com/haleyhousellc/arboriculture/blob/master/package.json) file or the
 [full documentation](https://haleyhousellc.github.io/arboriculture).
 
 Run the TypeScript linter:
@@ -130,13 +135,13 @@ Run the test suite:
 npm run test
 ```
 
-Generate source documentation from the TypeScript files in 
+Generate source documentation from the TypeScript files in
 [`src`](https://github.com/haleyhousellc/arboriculture/blob/master/src) (excluding *.spec.ts test files):
 ```bash
 npm run doc
 ```
 
-Full build.  This script runs the linter, compiles the source, transpiles the source, generates a micro product, 
+Full build.  This script runs the linter, compiles the source, transpiles the source, generates a micro product,
 and performs an [nsp](https://github.com/nodesecurity/nsp) security check.
 ```bash
 npm run thewholenine
@@ -144,14 +149,14 @@ npm run thewholenine
 
 ## Develop
 
-New additions to the forest are always welcome.  Feel free to fork, add your tree and initiate a pull request.  A few 
+New additions to the forest are always welcome.  Feel free to fork, add your tree and initiate a pull request.  A few
 things to keep in mind:
 
-* The [tslint.json](https://github.com/haleyhousellc/arboriculture/blob/master/tslint.json) configuration shows the TypeScript
-coding guidelines.
-* Unit tests for specific tree files should follow the standard shown in 
+- The [tslint.json](https://github.com/haleyhousellc/arboriculture/blob/master/tslint.json) configuration shows the
+  TypeScript coding guidelines.
+- Unit tests for specific tree files should follow the standard shown in
   [`src`](https://github.com/haleyhousellc/arboriculture/blob/master/src).  If your tree file is named mytree.ts, the
   the corresponding test file should reside in the same directory with the name mytree.spec.ts.  Should more general
   integration testing be needed in the future, a `test` directory may be added to hold these specs.
-* Readable code is always preferred over concise code.
-* Uncommented will not be accepted.
+- Readable code is always preferred over concise code.
+- Uncommented will not be accepted.

@@ -10,7 +10,7 @@ This wiki page provides details on the complete list of npm scripts include in t
 npm run lint
 ```
 
-This script checks the Typescript source against the set of rules outlined in 
+This script checks the Typescript source against the set of rules outlined in
 [tslint.json](https://github.com/haleyhousellc/arboriculture/blob/master/tslint.json)
 <br><br>
 
@@ -21,7 +21,7 @@ This script checks the Typescript source against the set of rules outlined in
 ```bash
 npm run build
 ```
-This script with compile the TypeScript source to ES6-compatible JavaScript.  Subsequent calls to 
+This script with compile the TypeScript source to ES6-compatible JavaScript.  Subsequent calls to
 [`transpile`](#transpiling) and [`uglify`](#uglifying) complete the process by transpiling to ES5-compatible JavaScript
 and performing comprehensive minification.
 <br><br>
@@ -55,7 +55,7 @@ This script continues the build process by calling [`transpile`](#transpiling).
 ```bash
 npm run compile:source
 ```
-This script compiles the TypeScript files in the 
+This script compiles the TypeScript files in the
 [`src`](ttps://github.com/haleyhousellc/arboriculture/blob/master/src) directory (excluding `*.spec.ts`).
 <br><br>
 
@@ -64,7 +64,7 @@ This script compiles the TypeScript files in the
 ```bash
 npm run compile:tests
 ```
-This script compiles the TypeScript `*.spec.ts` files in the 
+This script compiles the TypeScript `*.spec.ts` files in the
 [`src`](ttps://github.com/haleyhousellc/arboriculture/blob/master/src) directory.
 <br><br>
 
@@ -73,7 +73,7 @@ This script compiles the TypeScript `*.spec.ts` files in the
 ```bash
 npm run compile:examples
 ```
-This script compiles the TypeScript examples in the 
+This script compiles the TypeScript examples in the
 [`examples`](ttps://github.com/haleyhousellc/arboriculture/blob/master/examples) directory.
 <br><br>
 
@@ -84,7 +84,7 @@ This script compiles the TypeScript examples in the
 ```bash
 npm run doc
 ```
-This will generate html documentation for the TypeScript source code via the 
+This will generate html documentation for the TypeScript source code via the
 [typedoc](https://github.com/TypeStrong/typedoc) tool.
 <br><br>
 
@@ -137,7 +137,7 @@ This will remove the documentation generated with the [`doc`](#documenting) scri
 ```bash
 npm run clean:examples
 ```
-This will clean any residual `*.js` and `*.js.map` files generated from the [`compile:examples`](#compile-examples) 
+This will clean any residual `*.js` and `*.js.map` files generated from the [`compile:examples`](#compile-examples)
 script.
 <br><br>
 
@@ -238,15 +238,15 @@ This simply removes any existing deployable product.
 ```bash
 npm run thewholenine
 ```
-This script will perform a complete pre-deployment workup (except auto-generated documentation).  It runs 
-[`lint`](#linting), [`build`](#building) (including [`transpile`](#transpiling) and [`uglify`](#uglifying)), 
+This script will perform a complete pre-deployment workup (except auto-generated documentation).  It runs
+[`lint`](#linting), [`build`](#building) (including [`transpile`](#transpiling) and [`uglify`](#uglifying)),
 [`test`](#testing), and then [`securitycheck`](#security-check).
 
 *Note: this script does not run [`doc`](#documenting) because that command will generate links to the most recent GitHub
- commit.  If no changes have been made to the code, links will be correct.  However, if you are checking code in after 
+ commit.  If no changes have been made to the code, links will be correct.  However, if you are checking code in after
  this build, wait generate docs until after the push is accepted.*
  <br><br>
- 
+
 ##### prethewholenine <a id="prethewholenine"></a>
 
 *Note: this step does not need to be run manually*
@@ -266,6 +266,6 @@ This simply cleans the environment with [`clean`](#cleaning).
 ```bash
 npm run securitycheck
 ```
-This script will run Node Security's [nsp](https://github.com/nodesecurity/nsp) tool to search for common security 
+This script will run Node Security's [nsp](https://github.com/nodesecurity/nsp) tool to search for common security
 vulnerabilities in your code.
 <br><br>
