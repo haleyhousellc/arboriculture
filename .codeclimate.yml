@@ -2,19 +2,14 @@ engines:
   tslint:
     enabled: true
     channel: beta
-   markdownlint:
-     enabled: true
+    config: tslint.json
   fixme:
     enabled: true
-  duplication:
-    enabled: true
-    config:
-      languages:
-        javascript:
 ratings:
   paths:
-  - src/**/*
-  - examples/**/*
-  - "**.md"x
+  - "**.ts"
 exclude_paths:
 - node_modules
+- "**.d.ts"
+- "**.spec.ts"
+- "**.demo.ts"

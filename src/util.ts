@@ -42,5 +42,6 @@ export const UUID_VERSION_ENUM: UnionKeyToValue<UuidVersion> = {
  */
 export function generateUuid(version: UuidVersion = UUID_VERSION_ENUM.v1): string {
     if (version === UUID_VERSION_ENUM.v4) return uuid.v4();
+
     return uuid.v1();
 }

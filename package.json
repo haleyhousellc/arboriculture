@@ -62,6 +62,7 @@
     "babel-cli": "^6.24.1",
     "babel-preset-env": "^1.5.2",
     "chai": "^4.0.2",
+    "codeclimate-tslint": "^0.6.0",
     "mocha": "^3.4.2",
     "nsp": "^2.6.3",
     "ts-node": "^3.1.0",

@@ -1,7 +1,7 @@
 import {
+    defaultComparer,
     BinaryTree,
     BinaryTreeNode,
-    defaultComparer,
     IBinaryTree,
     IBinaryTreeNode,
     IComparer,
