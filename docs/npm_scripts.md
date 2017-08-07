@@ -53,7 +53,7 @@ This script continues the build process by calling [`transpile`](#transpiling).
 ##### Compiling the TypeScript source <a id="compile-source"></a>
 
 ```bash
-npm run compile:source
+npm run compile:src
 ```
 This script compiles the TypeScript files in the
 [`src`](ttps://github.com/haleyhousellc/arboriculture/blob/master/src) directory (excluding `*.spec.ts`).

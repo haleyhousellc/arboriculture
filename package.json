@@ -10,9 +10,9 @@
   },
   "scripts": {
     "prebuild": "npm run clean:dist",
-    "build": "npm run compile:source",
+    "build": "npm run compile:src",
     "postbuild": "npm run transpile",
-    "compile:source": "tsc --target es6 --outDir dist/es6",
+    "compile:src": "tsc --target es6 --outDir dist/es6",
     "compile:examples": "tsc examples/*.demo.ts --target es6",
     "compile:tests": "tsc src/**/*.spec.ts --target es6",
     "lint": "tslint .",
