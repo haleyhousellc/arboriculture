@@ -1,7 +1,7 @@
 import {
+    defaultComparer,
     BinaryTree,
     BinaryTreeNode,
-    defaultComparer,
     IBinaryTree,
     IBinaryTreeNode,
     IComparer,
@@ -118,7 +118,7 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
     // <editor-fold desc="protected implementations"
 
     /**
-     * Insert the given data into the tree - iteratively.  No duplicates are allowed.  If the new traverse is a
+     * Insert the given data into the tree - iteratively.  No duplicates are allowed.  If the new node is a
      * duplicate, no change occurs.  A recursive solution is prettier and cooler, but it has the potential for
      * memory-related performance problems as the tree grows (i.e. hitting stack limits).
      */

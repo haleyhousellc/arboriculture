@@ -171,7 +171,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     }
 
     /**
-     * Insert the given data into the tree - iteratively.  No duplicates are allowed.  If the new traverse is a
+     * Insert the given data into the tree - iteratively.  No duplicates are allowed.  If the new node is a
      * duplicate, no change occurs.  A recursive solution is prettier and cooler, but it has the potential for
      * memory-related performance problems as the tree grows (i.e. hitting stack limits).
      */
@@ -364,7 +364,6 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
         // root.
         if (!candidate.parent) this._root = replacement;
 
-        // TODO: revisit the wording of this comment
         // Otherwise, determine which subtree of the candidate should now be parented by the replacement.
         else if (candidate === candidate.parent.left) candidate.parent.left = replacement;
         else candidate.parent.right = replacement;
@@ -406,7 +405,6 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
         // root.
         if (!candidate.parent) this._root = replacement;
 
-        // TODO: revisit the wording of this comment
         // Otherwise, determine which subtree of the candidate should now be parented by the replacement.
         else if (candidate === candidate.parent.right) candidate.parent.right = replacement;
         else candidate.parent.left = replacement;
