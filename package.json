@@ -6,7 +6,8 @@
   "directories": {
     "doc": "docs",
     "example": "examples",
-    "src": "src"
+    "src": "src",
+    "test": "test",
   },
   "scripts": {
     "prebuild": "npm run clean:dist",

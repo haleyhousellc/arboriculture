@@ -56,7 +56,7 @@ This script continues the build process by calling [`transpile`](#transpiling).
 npm run compile:src
 ```
 This script compiles the TypeScript files in the
-[`src`](ttps://github.com/haleyhousellc/arboriculture/blob/master/src) directory (excluding `*.spec.ts`).
+[`src`](https://github.com/haleyhousellc/arboriculture/blob/master/src) directory (excluding `*.spec.ts`).
 <br><br>
 
 ##### Compiling the Mocha/Chai tests <a id="compile-tests"></a>
@@ -65,7 +65,7 @@ This script compiles the TypeScript files in the
 npm run compile:tests
 ```
 This script compiles the TypeScript `*.spec.ts` files in the
-[`src`](ttps://github.com/haleyhousellc/arboriculture/blob/master/src) directory.
+[`src`](https://github.com/haleyhousellc/arboriculture/blob/master/src) directory.
 <br><br>
 
 ##### Compiling the TypeScript examples <a id="compile-examples"></a>
@@ -74,7 +74,7 @@ This script compiles the TypeScript `*.spec.ts` files in the
 npm run compile:examples
 ```
 This script compiles the TypeScript examples in the
-[`examples`](ttps://github.com/haleyhousellc/arboriculture/blob/master/examples) directory.
+[`examples`](https://github.com/haleyhousellc/arboriculture/blob/master/examples) directory.
 <br><br>
 
 ### Documenting <a id="documenting"></a>
