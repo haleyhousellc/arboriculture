@@ -7,7 +7,7 @@
     "doc": "docs",
     "example": "examples",
     "src": "src",
-    "test": "test",
+    "test": "test"
   },
   "scripts": {
     "prebuild": "npm run clean:dist",
