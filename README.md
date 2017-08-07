@@ -159,4 +159,4 @@ things to keep in mind:
   the corresponding test file should reside in the same directory with the name mytree.spec.ts.  Should more general
   integration testing be needed in the future, a `test` directory may be added to hold these specs.
 - Readable code is always preferred over concise code.
-- Uncommented will not be accepted.
+- Uncommented code will not be accepted.

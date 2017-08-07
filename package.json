@@ -12,12 +12,12 @@
     "prebuild": "npm run clean:dist",
     "build": "npm run compile:source",
     "postbuild": "npm run transpile",
-    "compile:source": "tsc --outDir dist/es6",
+    "compile:source": "tsc --target es6 --outDir dist/es6",
     "compile:examples": "tsc examples/*.demo.ts --target es6",
     "compile:tests": "tsc src/**/*.spec.ts --target es6",
     "lint": "tslint .",
     "pretest": "npm run clean:src",
-    "test": "mocha --require ts-node/register src/**/*.spec.ts",
+    "test": "nyc mocha",
     "securitycheck": "nsp check",
     "predoc": "npm run clean:docs",
     "doc": "typedoc --out docs/autogen --includeDeclarations --excludeExternals",
@@ -34,6 +34,24 @@
     "clean:misc": "rm -rf index.d.ts index.js index.js.map npm-debug.log",
     "clean:examples": "rm -rf examples/*.js",
     "clean:src": "rm -rf src/**/*.js src/**/*.js.map"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.spec.ts",
+      "test/**/*.spec.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   },
   "repository": {
     "type": "git",
@@ -64,6 +82,8 @@
     "chai": "^4.0.2",
     "mocha": "^3.4.2",
     "nsp": "^2.6.3",
+    "nyc": "^11.0.3",
+    "source-map-support": "^0.4.15",
     "ts-node": "^3.1.0",
     "tslint": "^5.4.3",
     "typedoc": "^0.7.1",

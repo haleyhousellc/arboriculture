@@ -1,7 +1,7 @@
 import {
-    defaultComparer,
     BinaryTree,
     BinaryTreeNode,
+    defaultComparer,
     IBinaryTree,
     IBinaryTreeNode,
     IComparer,
@@ -24,6 +24,7 @@ export class BinarySearchTreeNode<T> extends BinaryTreeNode<T> implements IBinar
 
     constructor(data: T) {
         super(data);
+
         this._parent = null;
     }
 
@@ -54,9 +55,13 @@ export class BinarySearchTreeNode<T> extends BinaryTreeNode<T> implements IBinar
 
 export interface IBinarySearchTree<T> extends IBinaryTree<T> {
     find(data: T): IBinarySearchTreeNode<T>;
+
     min(): IBinarySearchTreeNode<T>;
+
     max(): IBinarySearchTreeNode<T>;
+
     insert(data: T): IBinarySearchTree<T>;
+
     remove(data: T): IBinarySearchTree<T>;
 }
 
@@ -86,7 +91,7 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
     }
 
     public insert(data: T): IBinarySearchTree<T> {
-        this._insert(data);
+        this._insert(new BinarySearchTreeNode<T>(data));
 
         return this;
     }
@@ -117,20 +122,20 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
      * duplicate, no change occurs.  A recursive solution is prettier and cooler, but it has the potential for
      * memory-related performance problems as the tree grows (i.e. hitting stack limits).
      */
-    protected _insert(data: T): IBinarySearchTreeNode<T> {
+    protected _insert(newNode: IBinarySearchTreeNode<T>): IBinaryTreeNode<T> {
+
         let parent: IBinarySearchTreeNode<T>  = null;
         let current: IBinarySearchTreeNode<T> = this._root as IBinarySearchTreeNode<T>;
-        const newNode                         = new BinarySearchTreeNode<T>(data);
 
         // Iterate over the tree to find the new node's parent.
         while (current) {
             parent = current;
 
             // Don't allow duplicates, so simply return if the data is already present in the tree.
-            if (this._comparer(data, current.data) === 0) return null;
+            if (this._comparer(newNode.data, current.data) === 0) return null;
 
             // Otherwise traverse the appropriate child.
-            else if (this._comparer(data, current.data) < 0) current = current.left;
+            else if (this._comparer(newNode.data, current.data) < 0) current = current.left;
             else current = current.right;
         }
 
@@ -141,7 +146,7 @@ export class BinarySearchTree<T> extends BinaryTree<T> implements IBinarySearchT
         if (!parent) this._root = newNode;
 
         // Otherwise, determine whether the new node is the left or right child of it's parent and link it.
-        else if (this._comparer(data, parent.data) < 0) parent.left = newNode;
+        else if (this._comparer(newNode.data, parent.data) < 0) parent.left = newNode;
         else parent.right = newNode;
 
         // Finally, increment the node count.

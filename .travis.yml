@@ -6,3 +6,12 @@ before_install:
   - "npm install -g typescript"
   - "npm install -g tslint"
   - "npm install -g ts-node"
+notifications:
+  email:
+    recipients:
+      - graham@haleyhousellc.com
+    on_success: change
+    on_failure: always
+  slack:
+    on_success: change
+    on_failure: always

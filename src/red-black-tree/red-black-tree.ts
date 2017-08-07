@@ -115,7 +115,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     }
 
     public insert(data: T): IRedBlackTree<T> {
-        this._insert(data);
+        this._insert(new RedBlackTreeNode<T>(data));
 
         return this;
     }
@@ -143,8 +143,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     /**
      * The insert procedure differs slightly from the base insert.
      */
-    protected _insert(data: T): IRedBlackTreeNode<T> {
-        const newNode: IRedBlackTreeNode<T> = new RedBlackTreeNode<T>(data);
+    protected _insert(newNode: IRedBlackTreeNode<T>): IRedBlackTreeNode<T> {
 
         let currentParent: IRedBlackTreeNode<T> = this._sentinel;
         let current: IRedBlackTreeNode<T>       = this._root as IRedBlackTreeNode<T>;

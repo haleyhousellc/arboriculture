@@ -52,7 +52,7 @@
     "no-require-imports": true,
     "prefer-const": true,
     "arrow-return-shorthand": [true, "multiline"],
-    "binary-expression-operand-order": true,
+    "binary-expression-operand-order": false,
     "class-name": true,
     "interface-name": [true, "always-prefix"],
     "newline-before-return": true,
