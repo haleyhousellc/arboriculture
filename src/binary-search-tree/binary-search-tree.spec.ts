@@ -8,22 +8,22 @@ import { BinarySearchTree, IBinarySearchTree } from './binary-search-tree';
 
 describe('binary-search-tree.ts', () => {
 
-    let bst: IBinarySearchTree<number>;
+    let bst: IBinarySearchTree<number, number>;
 
     before((done) => {
-        bst = new BinarySearchTree<number>();
+        bst = new BinarySearchTree<number, number>();
         done();
     });
 
     beforeEach((done) => {
         bst.insert(2)
-            .insert(3)
-            .insert(7)
-            .insert(1)
-            .insert(9)
-            .insert(0)
-            .insert(8)
-            .insert(6);
+           .insert(3)
+           .insert(7)
+           .insert(1)
+           .insert(9)
+           .insert(0)
+           .insert(8)
+           .insert(6);
         done();
     });
 
@@ -69,25 +69,90 @@ describe('binary-search-tree.ts', () => {
 
         describe('#find', () => {
             it(`should find an element that is present in the tree`, (done) => {
-                const node: IBinaryTreeNode<number> = bst.find(6);
+                const node: IBinaryTreeNode<number, number> = bst.find(6);
                 assert(node, `node should not be null`);
                 expect(bst.count).to.equal(8);
                 done();
             });
 
             it(`should not find an element that is not present in the tree`, (done) => {
-                const node: IBinaryTreeNode<number> = bst.find(60);
+                const node: IBinaryTreeNode<number, number> = bst.find(60);
                 assert(!node, `node should be null`);
                 expect(bst.count).to.equal(8);
                 done();
             });
         });
 
-        describe('arbitrary object types', () => {
+        describe(`arbitrary value type, number key`, () => {
             interface ITestType {
                 a: string;
                 b: string;
                 c: number;
+
+                toString(): string;
+            }
+
+            const t0: ITestType = {
+                a: 'hi',
+                b: 'there',
+                c: 1,
+                toString(): string {
+                    return `${this.a} ${this.b} ${this.c}`;
+                },
+            };
+
+            const t1: ITestType = {
+                a: 'what',
+                b: 'up',
+                c: 2,
+                toString(): string {
+                    return `${this.a} ${this.b} ${this.c}`;
+                },
+            };
+
+            const t2: ITestType = {
+                a: 'how',
+                b: 'goesit',
+                c: 3,
+                toString(): string {
+                    return `${this.a} ${this.b} ${this.c}`;
+                },
+            };
+
+            const bstAlt = new BinarySearchTree<number, ITestType>();
+
+            it(`should correctly insert an arbitrary type`, (done) => {
+                bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+                const s = bstAlt.toString();
+                expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
+                expect(bstAlt.count).to.equal(3);
+                done();
+            });
+
+            it(`should correctly delete an arbitrary type`, (done) => {
+                bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+                bstAlt.remove(0);
+                const s = bstAlt.toString();
+                expect(s.trim()).to.equal(`what up 2 | how goesit 3`);
+                expect(bstAlt.count).to.equal(2);
+                done();
+            });
+
+            it(`should correctly find an arbitrary type`, (done) => {
+                const node = bstAlt.find(1);
+                const s    = node.toString();
+                expect(s.trim()).to.equal(`key: 1, value: what up 2`);
+                expect(bstAlt.count).to.equal(2);
+                done();
+            });
+        });
+
+        describe('arbitrary object types, arbitrary key', () => {
+            interface ITestType {
+                a: string;
+                b: string;
+                c: number;
+
                 toString(): string;
             }
 
@@ -122,7 +187,7 @@ describe('binary-search-tree.ts', () => {
                 },
             };
 
-            const bstAlt: IBinarySearchTree<ITestType> = new BinarySearchTree<ITestType>(testComparer);
+            const bstAlt = new BinarySearchTree<ITestType, ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1);
@@ -144,7 +209,7 @@ describe('binary-search-tree.ts', () => {
             it(`should correctly find an arbitrary type`, (done) => {
                 const node = bstAlt.find(t1);
                 const s    = node.toString();
-                expect(s.trim()).to.equal(`data: what up 4`);
+                expect(s.trim()).to.equal(`key: what up 4, value: what up 4`);
                 expect(bstAlt.count).to.equal(2);
                 done();
             });

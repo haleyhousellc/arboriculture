@@ -25,24 +25,25 @@ export enum InsertionMultiplier {
 }
 
 /**
- * An avl tree node redefines the types of members #left, #right, and #parent to return IAvlTreeNode<T> rather
- * than a IBinarySearchTreeNode<T>.  It also adds a new member #color used in determining how/when to rotate the tree.
+ * An avl tree node redefines the types of members #left, #right, and #parent to return IAvlTreeNode<K, V> rather
+ * than a IBinarySearchTreeNode<K, V>.  It also adds a new member #color used in determining how/when to rotate the
+ * tree.
  */
-export interface IAvlTreeNode<T> extends IBinarySearchTreeNode<T> {
+export interface IAvlTreeNode<K, V> extends IBinarySearchTreeNode<K, V> {
     balanceFactor: BalanceFactor;
     isOverweight: boolean;
     isBalanced: boolean;
-    left: IAvlTreeNode<T>;
-    right: IAvlTreeNode<T>;
-    parent: IAvlTreeNode<T>;
+    left: IAvlTreeNode<K, V>;
+    right: IAvlTreeNode<K, V>;
+    parent: IAvlTreeNode<K, V>;
 }
 
-export class AvlTreeNode<T> extends BinarySearchTreeNode<T> implements IAvlTreeNode<T> {
+export class AvlTreeNode<K, V> extends BinarySearchTreeNode<K, V> implements IAvlTreeNode<K, V> {
 
     private _balanceFactor: BalanceFactor = null;
 
-    constructor(data: T) {
-        super(data);
+    constructor(key: K, value: V) {
+        super(key, value);
 
         this._balanceFactor = BalanceFactor.BALANCED;
     }
@@ -63,62 +64,62 @@ export class AvlTreeNode<T> extends BinarySearchTreeNode<T> implements IAvlTreeN
         return this._balanceFactor === BalanceFactor.BALANCED;
     }
 
-    public get left(): IAvlTreeNode<T> {
-        return this._left as IAvlTreeNode<T>;
+    public get left(): IAvlTreeNode<K, V> {
+        return this._left as IAvlTreeNode<K, V>;
     }
 
-    public set left(newLeft: IAvlTreeNode<T>) {
+    public set left(newLeft: IAvlTreeNode<K, V>) {
         this._left = newLeft;
     }
 
-    public get right(): IAvlTreeNode<T> {
-        return this._right as IAvlTreeNode<T>;
+    public get right(): IAvlTreeNode<K, V> {
+        return this._right as IAvlTreeNode<K, V>;
     }
 
-    public set right(newRight: IAvlTreeNode<T>) {
+    public set right(newRight: IAvlTreeNode<K, V>) {
         this._right = newRight;
     }
 
-    public get parent(): IAvlTreeNode<T> {
-        return this._parent as IAvlTreeNode<T>;
+    public get parent(): IAvlTreeNode<K, V> {
+        return this._parent as IAvlTreeNode<K, V>;
     }
 
-    public set parent(newParent: IAvlTreeNode<T>) {
+    public set parent(newParent: IAvlTreeNode<K, V>) {
         this._parent = newParent;
     }
 
     public toString(): string {
-        const str = `node => data: ${this._data}, balance factor: ${this._balanceFactor}`;
-        if (this._left) str.concat(`, left.data: ${this._left.data}`);
-        if (this._right) str.concat(`, right.data: ${this._right.data}`);
-        if (this._parent) str.concat(`, parent.data: ${this._parent.data}`);
+        const str = `value: ${this._value}, balance factor: ${this._balanceFactor}`;
+        if (this._left) str.concat(`, left.value: ${this._left.value}`);
+        if (this._right) str.concat(`, right.value: ${this._right.value}`);
+        if (this._parent) str.concat(`, parent.value: ${this._parent.value}`);
 
         return str;
     }
 }
 
 /**
- * This interface simply redefines some return types inherited from the standard IBinarySearchTree<T>.
+ * This interface simply redefines some return types inherited from the standard IBinarySearchTree<K, V>.
  */
-export interface IAvlTree<T> extends IBinarySearchTree<T> {
-    find(data: T): IAvlTreeNode<T>;
+export interface IAvlTree<K, V> extends IBinarySearchTree<K, V> {
+    find(key: K): IAvlTreeNode<K, V>;
 
-    min(): IAvlTreeNode<T>;
+    min(): IAvlTreeNode<K, V>;
 
-    max(): IAvlTreeNode<T>;
+    max(): IAvlTreeNode<K, V>;
 
-    insert(data: T): IAvlTree<T>;
+    insert(key: K, value?: V): IAvlTree<K, V>;
 
-    remove(data: T): IAvlTree<T>;
+    remove(key: K): IAvlTree<K, V>;
 }
 
 /**
  * Red-Black tree supporting all basic binary search tree operations.
  * Credit goes to http://oopweb.com/Algorithms/Documents/AvlTrees/Volume/AvlTrees.htm
  */
-export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
+export class AvlTree<K, V> extends BinarySearchTree<K, V> implements IAvlTree<K, V> {
 
-    constructor(comparer: IComparer<T> = defaultComparer) {
+    constructor(comparer: IComparer<K> = defaultComparer) {
         super(comparer);
     }
 
@@ -126,26 +127,26 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
         return this._count;
     }
 
-    public find(data: T): IAvlTreeNode<T> {
-        return this._find(data);
+    public find(key: K): IAvlTreeNode<K, V> {
+        return this._find(key);
     }
 
-    public min(): IAvlTreeNode<T> {
+    public min(): IAvlTreeNode<K, V> {
         return this._min();
     }
 
-    public max(): IAvlTreeNode<T> {
+    public max(): IAvlTreeNode<K, V> {
         return this._max();
     }
 
-    public insert(data: T): IAvlTree<T> {
-        this._insert(new AvlTreeNode<T>(data));
+    public insert(key: K, value?: V): IAvlTree<K, V> {
+        this._insert(new AvlTreeNode<K, V>(key, value));
 
         return this;
     }
 
-    public remove(data: T): IAvlTree<T> {
-        this._remove(data);
+    public remove(key: K): IAvlTree<K, V> {
+        this._remove(key);
 
         return this;
     }
@@ -154,7 +155,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
         return this._clear();
     }
 
-    public traverse(): T[] {
+    public traverse(): V[] {
         return this._traverseInOrder();
     }
 
@@ -166,18 +167,19 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
 
     //<editor-fold desc="protected">
 
-    protected _find(targetData: T, startingNode: IAvlTreeNode<T> = this._root as IAvlTreeNode<T>): IAvlTreeNode<T> {
-        return super._find(targetData, startingNode) as IAvlTreeNode<T>;
+    protected _find(targetKey: K,
+                    startingNode: IAvlTreeNode<K, V> = this._root as IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
+        return super._find(targetKey, startingNode) as IAvlTreeNode<K, V>;
     }
 
     /**
-     * Insert the given data into the tree - iteratively.  No duplicates are allowed.  If the new node is a
+     * Insert the given key into the tree - iteratively.  No duplicates are allowed.  If the new node is a
      * duplicate, no change occurs.  A recursive solution is prettier and cooler, but it has the potential for
      * memory-related performance problems as the tree grows (i.e. hitting stack limits).
      */
-    protected _insert(newNode: IAvlTreeNode<T>): IAvlTreeNode<T> {
+    protected _insert(newNode: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
 
-        const insertedNode: IAvlTreeNode<T> = super._insert(newNode) as IAvlTreeNode<T>;
+        const insertedNode: IAvlTreeNode<K, V> = super._insert(newNode) as IAvlTreeNode<K, V>;
 
         // Only move forward if the node wasn't a duplicate.
         if (!insertedNode) return null;
@@ -190,7 +192,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     }
 
     /**
-     * Delete the given data from the tree - iteratively.  A recursive solution is prettier and cooler, but it has the
+     * Delete the given key from the tree - iteratively.  A recursive solution is prettier and cooler, but it has the
      * potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).
      *
      * The logic below up to the call to super#_remove is actually duplicated from the #_remove method.  For an AVL
@@ -198,22 +200,22 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
      * the path to the candidate.  An alternative would be to traverse the entire subtree after removal to try to
      * determine where the replacement came from.  This seemed more straight forward...
      */
-    protected _remove(data: T): IAvlTreeNode<T> {
+    protected _remove(key: K): IAvlTreeNode<K, V> {
 
         // For more information on the following lines (up to the call to super#_remove) see that method instead.
         // The logic is duplicated to make book-keeping easier after the removal.  Essentially, we call #_find and
         // #_findSuccessor here, then again in the reused code from super#_remove.  Both are quick O(log n)
         // operations, so running each twice is still O(log n) - essentially, a negligible performance hit.
-        const candidate: IAvlTreeNode<T> = this._find(data) as IAvlTreeNode<T>;
+        const candidate: IAvlTreeNode<K, V> = this._find(key) as IAvlTreeNode<K, V>;
         if (!candidate) return null;
 
-        let successor: IAvlTreeNode<T> = null;
+        let successor: IAvlTreeNode<K, V> = null;
 
         if (!candidate.left || !candidate.right) successor = candidate;
-        else successor = this._findSuccessor(candidate) as IAvlTreeNode<T>;
+        else successor = this._findSuccessor(candidate) as IAvlTreeNode<K, V>;
 
         // There will be a bit of duplicated logic here, but overall the running time will remain the same - O (log n).
-        const replacement: IAvlTreeNode<T> = super._remove(data) as IAvlTreeNode<T>;
+        const replacement: IAvlTreeNode<K, V> = super._remove(key) as IAvlTreeNode<K, V>;
 
         replacement.balanceFactor = candidate.balanceFactor;
 
@@ -228,8 +230,8 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
      * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
      * node if the value exists in the tree.  If the value is not found, returns null.
      */
-    protected _min(root: IAvlTreeNode<T> = this._root as IAvlTreeNode<T>): IAvlTreeNode<T> {
-        return super._min(root) as IAvlTreeNode<T>;
+    protected _min(root: IAvlTreeNode<K, V> = this._root as IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
+        return super._min(root) as IAvlTreeNode<K, V>;
     }
 
     /**
@@ -237,8 +239,8 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
      * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
      * node if the value exists in the tree.  If the value is not found, returns null.
      */
-    protected _max(root: IAvlTreeNode<T> = this._root as IAvlTreeNode<T>): IAvlTreeNode<T> {
-        return super._max(root) as IAvlTreeNode<T>;
+    protected _max(root: IAvlTreeNode<K, V> = this._root as IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
+        return super._max(root) as IAvlTreeNode<K, V>;
     }
 
     protected _clear() {
@@ -252,13 +254,13 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     /**
      * This function adjusts balance factors and performs any rotations needed after inserting a new node.
      */
-    protected _fixInsertion(newNode: IAvlTreeNode<T>): void {
+    protected _fixInsertion(newNode: IAvlTreeNode<K, V>): void {
 
         // Quick sanity check.
         if (!newNode) return;
 
-        let previous: IAvlTreeNode<T> = newNode;
-        let current: IAvlTreeNode<T>  = previous.parent;
+        let previous: IAvlTreeNode<K, V> = newNode;
+        let current: IAvlTreeNode<K, V>  = previous.parent;
 
         // New node was inserted into empty tree (at root).
         if (!current) return;
@@ -287,7 +289,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     /**
      * This function adjusts balance factors and performs any rotations needed after deleting a node.
      */
-    protected _fixDeletion(originalParentOfReplacement: IAvlTreeNode<T>): void {
+    protected _fixDeletion(originalParentOfReplacement: IAvlTreeNode<K, V>): void {
 
         // Quick sanity check.
         if (!originalParentOfReplacement) return;
@@ -296,7 +298,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
             ? BalanceFactor.LEFT_LEANING
             : BalanceFactor.RIGHT_LEANING;
 
-        let current: IAvlTreeNode<T> = originalParentOfReplacement;
+        let current: IAvlTreeNode<K, V> = originalParentOfReplacement;
 
 
         // Follow the path from the replacement to the candidate and update balance factors along the way.  When
@@ -314,13 +316,13 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
             // safely exit.
             if (current.isBalanced) break;
 
-            current  = current.parent;
+            current = current.parent;
         }
 
         return;
     }
 
-    protected _rebalance(node: IAvlTreeNode<T>): IAvlTreeNode<T> {
+    protected _rebalance(node: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
 
         if (node.balanceFactor === BalanceFactor.LEFT_HEAVY) {
 
@@ -343,7 +345,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     /**
      * Rotates a subtree rooted at 'candidate' to the left.
      */
-    protected _rotateLeft(candidate: IAvlTreeNode<T>): IAvlTreeNode<T> {
+    protected _rotateLeft(candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
 
         // Left rotation only works if the candidate has a right child.
         if (!candidate.right) return null;
@@ -384,7 +386,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     /**
      * Rotates a subtree rooted at 'candidate' to the right.
      */
-    protected _rotateRight(candidate: IAvlTreeNode<T>): IAvlTreeNode<T> {
+    protected _rotateRight(candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
 
         // Right rotation only works if the candidate has a left child.
         if (!candidate.left) return null;
@@ -425,7 +427,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     /**
      * Double rotation of a subtree rooted at 'candidate' to the left then right.
      */
-    protected _rotateLeftRight(candidate: IAvlTreeNode<T>): IAvlTreeNode<T> {
+    protected _rotateLeftRight(candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
         this._rotateLeft(candidate.left);
 
         return this._rotateRight(candidate);
@@ -434,7 +436,7 @@ export class AvlTree<T> extends BinarySearchTree<T> implements IAvlTree<T> {
     /**
      * Double rotation of a subtree rooted at 'candidate' to the right then left.
      */
-    protected _rotateRightLeft(candidate: IAvlTreeNode<T>): IAvlTreeNode<T> {
+    protected _rotateRightLeft(candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> {
         this._rotateRight(candidate.right);
 
         return this._rotateLeft(candidate);

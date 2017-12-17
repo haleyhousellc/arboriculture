@@ -12,26 +12,27 @@ export enum RedBlackTreeNodeColor {
 }
 
 /**
- * A red-black tree node redefines the types of members #left, #right, and #parent to return IRedBlackTreeNode<T> rather
- * than a IBinarySearchTreeNode<T>.  It also adds a new member #color used in determining how/when to rotate the tree.
+ * A red-black tree node redefines the types of members #left, #right, and #parent to return IRedBlackTreeNode<K, V>
+ * rather than a IBinarySearchTreeNode<K, V>.  It also adds a new member #color used in determining how/when to
+ * rotate the tree.
  */
-export interface IRedBlackTreeNode<T> extends IBinarySearchTreeNode<T> {
+export interface IRedBlackTreeNode<K, V> extends IBinarySearchTreeNode<K, V> {
     color: RedBlackTreeNodeColor;
-    left: IRedBlackTreeNode<T>;
-    right: IRedBlackTreeNode<T>;
-    parent: IRedBlackTreeNode<T>;
+    left: IRedBlackTreeNode<K, V>;
+    right: IRedBlackTreeNode<K, V>;
+    parent: IRedBlackTreeNode<K, V>;
     isSentinel: boolean;
 }
 
-export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRedBlackTreeNode<T> {
+export class RedBlackTreeNode<K, V> extends BinarySearchTreeNode<K, V> implements IRedBlackTreeNode<K, V> {
     protected _color: RedBlackTreeNodeColor = null;
 
     private _isSentinel: boolean = null;
 
-    constructor(data: T) {
-        super(data);
+    constructor(key: K = null, value: V = null) {
+        super(key, value);
 
-        this._isSentinel = !data;
+        this._isSentinel = !value;
     }
 
     public get color(): RedBlackTreeNodeColor {
@@ -42,27 +43,27 @@ export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRed
         this._color = newColor;
     }
 
-    public get left(): IRedBlackTreeNode<T> {
-        return this._left as IRedBlackTreeNode<T>;
+    public get left(): IRedBlackTreeNode<K, V> {
+        return this._left as IRedBlackTreeNode<K, V>;
     }
 
-    public set left(newLeft: IRedBlackTreeNode<T>) {
+    public set left(newLeft: IRedBlackTreeNode<K, V>) {
         this._left = newLeft;
     }
 
-    public get right(): IRedBlackTreeNode<T> {
-        return this._right as IRedBlackTreeNode<T>;
+    public get right(): IRedBlackTreeNode<K, V> {
+        return this._right as IRedBlackTreeNode<K, V>;
     }
 
-    public set right(newRight: IRedBlackTreeNode<T>) {
+    public set right(newRight: IRedBlackTreeNode<K, V>) {
         this._right = newRight;
     }
 
-    public get parent(): IRedBlackTreeNode<T> {
-        return this._parent as IRedBlackTreeNode<T>;
+    public get parent(): IRedBlackTreeNode<K, V> {
+        return this._parent as IRedBlackTreeNode<K, V>;
     }
 
-    public set parent(newParent: IRedBlackTreeNode<T>) {
+    public set parent(newParent: IRedBlackTreeNode<K, V>) {
         this._parent = newParent;
     }
 
@@ -72,24 +73,28 @@ export class RedBlackTreeNode<T> extends BinarySearchTreeNode<T> implements IRed
 }
 
 /**
- * This interface simply redefines some return types inherited from the standard IBinarySearchTree<T>.
+ * This interface simply redefines some return types inherited from the standard IBinarySearchTree<K, V>.
  */
-export interface IRedBlackTree<T> extends IBinarySearchTree<T> {
-    find(data: T): IRedBlackTreeNode<T>;
-    min(): IRedBlackTreeNode<T>;
-    max(): IRedBlackTreeNode<T>;
-    insert(data: T): IRedBlackTree<T>;
-    remove(data: T): IRedBlackTree<T>;
+export interface IRedBlackTree<K, V> extends IBinarySearchTree<K, V> {
+    find(key: K): IRedBlackTreeNode<K, V>;
+
+    min(): IRedBlackTreeNode<K, V>;
+
+    max(): IRedBlackTreeNode<K, V>;
+
+    insert(key: K, value?: V): IRedBlackTree<K, V>;
+
+    remove(key: K): IRedBlackTree<K, V>;
 }
 
 /**
  * Red-Black tree supporting all basic binary search tree operations.
  */
-export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTree<T> {
+export class RedBlackTree<K, V> extends BinarySearchTree<K, V> implements IRedBlackTree<K, V> {
 
-    private _sentinel: IRedBlackTreeNode<T> = null;
+    private _sentinel: IRedBlackTreeNode<K, V> = null;
 
-    constructor(comparer: IComparer<T> = defaultComparer) {
+    constructor(comparer: IComparer<K> = defaultComparer) {
         super(comparer);
 
         this._sentinel = this.makeSentinel();
@@ -100,28 +105,28 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         return this._count;
     }
 
-    public find(data: T): IRedBlackTreeNode<T> {
-        const node = this._find(data);
+    public find(key: K): IRedBlackTreeNode<K, V> {
+        const node = this._find(key);
 
         return node === this._sentinel ? null : node;
     }
 
-    public min(): IRedBlackTreeNode<T> {
+    public min(): IRedBlackTreeNode<K, V> {
         return this._min();
     }
 
-    public max(): IRedBlackTreeNode<T> {
+    public max(): IRedBlackTreeNode<K, V> {
         return this._max();
     }
 
-    public insert(data: T): IRedBlackTree<T> {
-        this._insert(new RedBlackTreeNode<T>(data));
+    public insert(key: K, value?: V): IRedBlackTree<K, V> {
+        this._insert(new RedBlackTreeNode<K, V>(key, value));
 
         return this;
     }
 
-    public remove(data: T): IRedBlackTree<T> {
-        this._remove(data);
+    public remove(key: K): IRedBlackTree<K, V> {
+        this._remove(key);
 
         return this;
     }
@@ -130,7 +135,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         return this._clear();
     }
 
-    public traverse(): T[] {
+    public traverse(): V[] {
         return this._traverseInOrder();
     }
 
@@ -143,20 +148,20 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     /**
      * The insert procedure differs slightly from the base insert.
      */
-    protected _insert(newNode: IRedBlackTreeNode<T>): IRedBlackTreeNode<T> {
+    protected _insert(newNode: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> {
 
-        let currentParent: IRedBlackTreeNode<T> = this._sentinel;
-        let current: IRedBlackTreeNode<T>       = this._root as IRedBlackTreeNode<T>;
+        let currentParent: IRedBlackTreeNode<K, V> = this._sentinel;
+        let current: IRedBlackTreeNode<K, V>       = this._root as IRedBlackTreeNode<K, V>;
 
         // Iterate over the tree to find the new node's parent.
         while (current !== this._sentinel) {
             currentParent = current;
 
-            // Don't allow duplicates, so simply return if the data is already present in the tree.
-            if (this._comparer(newNode.data, current.data) === 0) return null;
+            // Don't allow duplicates, so simply return if the key is already present in the tree.
+            if (this._comparer(newNode.key, current.key) === 0) return null;
 
             // Otherwise traverse the appropriate child.
-            if (this._comparer(newNode.data, current.data) < 0) current = current.left;
+            if (this._comparer(newNode.key, current.key) < 0) current = current.left;
             else current = current.right;
         }
 
@@ -167,7 +172,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         if (currentParent === this._sentinel) this._root = newNode;
 
         // Otherwise, determine whether the new node should be the left or right child of its parent and link it.
-        else if (this._comparer(newNode.data, currentParent.data) < 0) currentParent.left = newNode;
+        else if (this._comparer(newNode.key, currentParent.key) < 0) currentParent.left = newNode;
         else currentParent.right = newNode;
 
         newNode.left  = this._sentinel;
@@ -188,26 +193,26 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
      * This is essentially a copy of the base delete procedure.  However, the assignment of newSuccessor.parent to
      * replacement.parent is unconditional.  Also new is the comparison to the sentinel node, rather than a null-check.
      */
-    protected _remove(data: T): IRedBlackTreeNode<T> {
+    protected _remove(key: K): IRedBlackTreeNode<K, V> {
 
-        const candidate: IRedBlackTreeNode<T> = this._find(data);
+        const candidate: IRedBlackTreeNode<K, V> = this._find(key);
 
         // If the candidate is null, it was not present in the tree.
         if (candidate === this._sentinel) return null;
 
         // Declare a replacement for the deleted node.  This begins as it's successor, but is spliced out of it's
         // original location and is substituted back into the tree at the location of the deleted node.
-        let replacement: IRedBlackTreeNode<T> = null;
+        let replacement: IRedBlackTreeNode<K, V> = null;
 
         // If the node to be deleted has less than 2 children (i.e. 0 or 1), designate it as it's own replacement
         if (candidate.left === this._sentinel || candidate.right === this._sentinel) replacement = candidate;
 
         // Otherwise set the replacement as the candidate's immediate successor.
-        else replacement = this._findSuccessor(candidate) as IRedBlackTreeNode<T>;
+        else replacement = this._findSuccessor(candidate) as IRedBlackTreeNode<K, V>;
 
         // Declare a new successor.  This is either the replacement's only child, or null.  After the replacement takes
         // over in the old position of the deleted node, this node represents the replacement's immediate successor.
-        let newSuccessor: IRedBlackTreeNode<T> = null;
+        let newSuccessor: IRedBlackTreeNode<K, V> = null;
 
         if (replacement.left !== this._sentinel) newSuccessor = replacement.left;
         else newSuccessor = replacement.right;
@@ -219,7 +224,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         else if (replacement === replacement.parent.left) replacement.parent.left = newSuccessor;
         else replacement.parent.right = newSuccessor;
 
-        if (replacement !== candidate) candidate.data = replacement.data;
+        if (replacement !== candidate) candidate.value = replacement.value;
 
         // If the node that replaced the deleted node in the tree is black, fix any violations that exist.
         if (replacement.color === RedBlackTreeNodeColor.BLACK) this._fixDeletion(newSuccessor);
@@ -235,9 +240,9 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     /**
      * This function adjusts node colors and performs any rotations needed after inserting a new node.
      */
-    protected _fixInsertion(newNode: IRedBlackTreeNode<T>): void {
-        let current: IRedBlackTreeNode<T> = newNode;
-        let uncle: IRedBlackTreeNode<T>   = null;
+    protected _fixInsertion(newNode: IRedBlackTreeNode<K, V>): void {
+        let current: IRedBlackTreeNode<K, V> = newNode;
+        let uncle: IRedBlackTreeNode<K, V>   = null;
 
         // The candidate begins life red. If the candidate's parent isn't red, no violation should have occurred.
         while (current.parent.color === RedBlackTreeNodeColor.RED) {
@@ -329,16 +334,16 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         }
 
         // Finally, ensure the root is still black.  This will not re-violate any conditions.
-        (this._root as IRedBlackTreeNode<T>).color = RedBlackTreeNodeColor.BLACK;
+        (this._root as IRedBlackTreeNode<K, V>).color = RedBlackTreeNodeColor.BLACK;
     }
 
     /**
      * This function adjusts node colors and performs any rotations needed after deleting a node.
      */
-    protected _fixDeletion(candidate: IRedBlackTreeNode<T>): void {
+    protected _fixDeletion(candidate: IRedBlackTreeNode<K, V>): void {
 
         while (candidate !== this._root && candidate.color === RedBlackTreeNodeColor.BLACK) {
-            let sibling: IRedBlackTreeNode<T> = null;
+            let sibling: IRedBlackTreeNode<K, V> = null;
 
             // The deleted node is a left child...
             if (candidate === candidate.parent.left) {
@@ -375,7 +380,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
                     candidate.parent.color = RedBlackTreeNodeColor.BLACK;
                     sibling.right.color    = RedBlackTreeNodeColor.BLACK;
                     this._rotateLeft(candidate.parent);
-                    candidate = this._root as IRedBlackTreeNode<T>;
+                    candidate = this._root as IRedBlackTreeNode<K, V>;
                 }
             }
 
@@ -414,7 +419,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
                     candidate.parent.color = RedBlackTreeNodeColor.BLACK;
                     sibling.left.color     = RedBlackTreeNodeColor.BLACK;
                     this._rotateRight(candidate.parent);
-                    candidate = this._root as IRedBlackTreeNode<T>;
+                    candidate = this._root as IRedBlackTreeNode<K, V>;
                 }
             }
         }
@@ -423,7 +428,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     /**
      * Rotates a subtree rooted at 'candidate' to the left.
      */
-    protected _rotateLeft(candidate: IRedBlackTreeNode<T>): void {
+    protected _rotateLeft(candidate: IRedBlackTreeNode<K, V>): void {
 
         // Left rotation only works if the candidate has a right child.
         if (candidate.right === this._sentinel) return;
@@ -458,7 +463,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     /**
      * Rotates a subtree rooted at 'candidate' to the right.
      */
-    protected _rotateRight(candidate: IRedBlackTreeNode<T>): void {
+    protected _rotateRight(candidate: IRedBlackTreeNode<K, V>): void {
 
         // Right rotation only works if the candidate has a left child.
         if (candidate.left === this._sentinel) return;
@@ -490,14 +495,14 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         candidate.parent = replacement;
     }
 
-    protected _traverseInOrder(): T[] {
+    protected _traverseInOrder(): V[] {
         if (this._root === this._sentinel) return [];
 
-        const orderedData: T[] = [];
+        const orderedData: V[] = [];
 
         // Stacks make sense for what essentially amounts to a depth-first search.
-        const stack: IRedBlackTreeNode<T>[] = [];
-        let current: IRedBlackTreeNode<T>   = this._root as IRedBlackTreeNode<T>;
+        const stack: IRedBlackTreeNode<K, V>[] = [];
+        let current: IRedBlackTreeNode<K, V>   = this._root as IRedBlackTreeNode<K, V>;
 
         // Build initial stack by traversing left
         while (current !== this._sentinel) {
@@ -508,7 +513,7 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         // Now traverse the tree from the minimum value.
         while (stack.length > 0) {
             current = stack.pop();
-            orderedData.push(current.data);
+            orderedData.push(current.value);
 
             // If the current node has a right child, traverse that subtree before backing out.
             if (current.right !== this._sentinel) {
@@ -526,28 +531,29 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
     }
 
     /**
-     * Search the tree for a given piece of data - iteratively.  A recursive solution is prettier and cooler, but it has
+     * Search the tree for a given key - iteratively.  A recursive solution is prettier and cooler, but it has
      * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
      * node if the value exists in the tree.  If the value is not found, returns null.
      */
-    protected _find(targetData: T,
-                    startingNode: IRedBlackTreeNode<T> = this._root as IRedBlackTreeNode<T>): IRedBlackTreeNode<T>
+    protected _find(targetKey: K,
+                    startingNode: IRedBlackTreeNode<K, V> =
+                        this._root as IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V>
     {
 
         // Just make sure the target is legitimate.
-        if (targetData == null) return null;
+        if (targetKey == null) return null;
 
         // Get a local variable.
         let currentNode = startingNode;
 
-        // Loop until the current node is null (i.e. target data is not found), or the target data is found (comparer
+        // Loop until the current node is null (i.e. target key is not found), or the target key is found (comparer
         // returns zero).
-        while (currentNode !== this._sentinel && this._comparer(targetData, currentNode.data) !== 0) {
+        while (currentNode !== this._sentinel && this._comparer(targetKey, currentNode.key) !== 0) {
 
-            // If comparer returns less than zero, target data is less than current node data - traverse left;
-            if (this._comparer(targetData, currentNode.data) < 0) currentNode = currentNode.left;
+            // If comparer returns less than zero, target key is less than current node key - traverse left;
+            if (this._comparer(targetKey, currentNode.key) < 0) currentNode = currentNode.left;
 
-            // If comparer returns greater than zero, target data is greater than current node data - traverse right.
+            // If comparer returns greater than zero, target key is greater than current node key - traverse right.
             else currentNode = currentNode.right;
         }
 
@@ -560,10 +566,10 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
      * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
      * node if the value exists in the tree.  If the value is not found, returns null.
      */
-    protected _max(root: IRedBlackTreeNode<T> = this._root as IRedBlackTreeNode<T>): IRedBlackTreeNode<T> {
+    protected _max(root: IRedBlackTreeNode<K, V> = this._root as IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> {
 
         // Get a local variable.
-        let currentNode: IRedBlackTreeNode<T> = root;
+        let currentNode: IRedBlackTreeNode<K, V> = root;
 
         // Iterate right until a leaf is reached.
         while (currentNode.right !== this._sentinel) {
@@ -578,10 +584,10 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
      * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
      * node if the value exists in the tree.  If the value is not found, returns null.
      */
-    protected _min(root: IRedBlackTreeNode<T> = this._root as IRedBlackTreeNode<T>): IRedBlackTreeNode<T> {
+    protected _min(root: IRedBlackTreeNode<K, V> = this._root as IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> {
 
         // Get a local variable.
-        let currentNode: IRedBlackTreeNode<T> = root;
+        let currentNode: IRedBlackTreeNode<K, V> = root;
 
         // Iterate left until a leaf is reached.
         while (currentNode.left !== this._sentinel) {
@@ -599,12 +605,12 @@ export class RedBlackTree<T> extends BinarySearchTree<T> implements IRedBlackTre
         this._root = this._sentinel;
     }
 
-    private makeSentinel(): IRedBlackTreeNode<T> {
-        const sentinel: IRedBlackTreeNode<T> = new RedBlackTreeNode(null);
-        sentinel.parent                      = sentinel;
-        sentinel.left                        = sentinel;
-        sentinel.right                       = sentinel;
-        sentinel.color                       = RedBlackTreeNodeColor.BLACK;
+    private makeSentinel(): IRedBlackTreeNode<K, V> {
+        const sentinel: IRedBlackTreeNode<K, V> = new RedBlackTreeNode();
+        sentinel.parent                         = sentinel;
+        sentinel.left                           = sentinel;
+        sentinel.right                          = sentinel;
+        sentinel.color                          = RedBlackTreeNodeColor.BLACK;
 
         return sentinel;
     }

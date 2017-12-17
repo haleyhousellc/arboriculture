@@ -136,13 +136,14 @@ typings/
 index.js
 index.js.map
 
-driver.ts
-driver.js
+driver.*
 driver.js.map
 src/**/*.js
 src/**/*.js.map
 examples/**/*.js
 examples/**/*.js.map
 
-dist
-docs/autogen
+dist/
+docs/autogen/
+coverage/
+.nyc_output/
