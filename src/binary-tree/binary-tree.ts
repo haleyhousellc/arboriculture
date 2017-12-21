@@ -1,7 +1,7 @@
 /**
  * Base binary tree node interface
  */
-export interface IBinaryTreeNode<K, V> {
+export interface IBinaryTreeNode<K, V = any> {
     key: K;
     value: V;
     left: IBinaryTreeNode<K, V>;
@@ -13,7 +13,7 @@ export interface IBinaryTreeNode<K, V> {
 /**
  * Implementation of base binary tree node
  */
-export class BinaryTreeNode<K, V> implements IBinaryTreeNode<K, V> {
+export class BinaryTreeNode<K, V = any> implements IBinaryTreeNode<K, V> {
     protected _key: K;
     protected _value: V;
     protected _left: IBinaryTreeNode<K, V>;

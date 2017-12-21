@@ -50,7 +50,9 @@ A few basic usage examples are shown.  Most trees have similar operations, so a 
 [Binary Search Tree](https://github.com/haleyhousellc/arboriculture/blob/master/src/binary-search-tree/binary-search-tree.ts)
 is shown for convenience.
 
-Get a new tree:
+---
+
+Get a new tree that stores number and uses value as the key:
 ```typescript
 const bst: IBinarySearchTree<number> = new BinarySearchTree<number>();
 ```
@@ -96,22 +98,52 @@ Find a node with a given value:
 const node = bst.find(6);  // if the value does not exist, 'node' will be null
 ```
 
-Finally, an example showing complex types:
+---
+
+Next, an example using a complex stored type with a simple number key:
+```typescript
+interface IMyStoredObject {
+    m1: string;
+    m2: string;
+    m3: string;
+    m4: string;
+}
+
+const myStoredObject0 = {m1: 'm1', m2: 'm2', m3: 'm3', m4: 'm4'};
+const myStoredObject1 = {m1: 'm5', m2: 'm6', m3: 'm7', m4: 'm8'};
+
+const bst = new BinarySearchTree<number, IMyStoredObject>();
+bst.insert(0, myStoredObject0);
+bst.insert(1, myStoredObject1);
+```
+
+---
+
+Finally, an example showing complex types and a complex key:
 ```typescript
 // Be sure you provide your own compare function when using a tree to store custom objects, otherwise insert, remove,
 // and find results are undefined.
-interface IMyObject {
+interface IMyKeyObject {
     member1: string;
     member2: number;
 }
 
-const myObject0 = { member1: 'hello there', member2: 35 };
-const myComparer = (a: IMyObject, b: IMyObject): number => {
+interface IMyStoredObject {
+    m1: string;
+    m2: string;
+    m3: string;
+    m4: string;
+}
+
+const myKeyObject0 = { member1: 'hello there', member2: 35 };
+const myStoredObject0 = {m1: 'm1', m2: 'm2', m3: 'm3', m4: 'm4'};
+
+const myComparer = (a: IMyKeyObject, b: IMyKeyObject): number => {
     return a.member2 - b.member2;
 };
 
-const bst: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myComparer);
-bst.insert(myObject0);
+const bst = new BinarySearchTree<IMyKeyObject, IMyStoredObject>(myComparer);
+bst.insert(myKeyObject0, myValueObject0);
 ```
 
 ## Package Scripts

@@ -54,7 +54,7 @@ export class BinarySearchTreeNode<K, V> extends BinaryTreeNode<K, V> implements 
     }
 }
 
-export interface IBinarySearchTree<K, V> extends IBinaryTree<K, V> {
+export interface IBinarySearchTree<K, V = any> extends IBinaryTree<K, V> {
     find(key: K): IBinarySearchTreeNode<K, V>;
 
     min(): IBinarySearchTreeNode<K, V>;
@@ -69,7 +69,7 @@ export interface IBinarySearchTree<K, V> extends IBinaryTree<K, V> {
 /**
  * Simple binary search tree supporting find, insert, and remove operations.
  */
-export class BinarySearchTree<K, V> extends BinaryTree<K, V> implements IBinarySearchTree<K, V> {
+export class BinarySearchTree<K, V = any> extends BinaryTree<K, V> implements IBinarySearchTree<K, V> {
 
     constructor(comparer: IComparer<K> = defaultComparer) {
         super(comparer);
