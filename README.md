@@ -6,7 +6,7 @@
 [![Test Coverage](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/coverage.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture/coverage)
 [![Issue Count](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/issue_count.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture)
 
-Arboriculture is a community-supported tree library providing a set of common tree data structures for TypeScript and
+Arboriculture is a small tree library providing a set of common tree data structures for TypeScript and
 JavaScript projects.  Unleash your inner lumberjack.
 
 >###### ISC License (ISC)

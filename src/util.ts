@@ -17,15 +17,6 @@ export type StringKeyObjectValue<K, V> = { [s: string]: V};
  */
 export type UnionKeyToValue<U extends string> = { [K in U]: K; };
 
-/**
- * The current package version
- */
-export const VERSION: string    = '0.4.0';
-
-/**
- * The user agent string
- */
-export const USER_AGENT: string = `arboriculture/${VERSION}`;
 
 /**
  * Convenience type representing a uuid version.  Default is v1 (time-based), v4 (random) is also available
