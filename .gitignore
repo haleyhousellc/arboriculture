@@ -137,7 +137,6 @@ index.js
 index.js.map
 
 driver.*
-driver.js.map
 src/**/*.js
 src/**/*.js.map
 examples/**/*.js
