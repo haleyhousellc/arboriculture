@@ -1,4 +1,4 @@
-import { BinarySearchTreeNode, clearBst, IBinarySearchTreeNode, } from '../binary-search-tree/binary-search-tree';
+import { clearBst, BinarySearchTreeNode, IBinarySearchTreeNode, } from '../binary-search-tree/binary-search-tree';
 import { defaultComparer, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
 
 export enum RedBlackTreeNodeColor {
@@ -39,9 +39,6 @@ export const RedBlackTreeNode = <K, V>(key?: K, value?: V): IRedBlackTreeNode<K,
     };
 };
 
-/**
- * This interface simply redefines some return types inherited from the standard IBinarySearchTree<K, V>.
- */
 export interface IRedBlackTree<K, V = K> {
     root: IRedBlackTreeNode<K, V>;
 

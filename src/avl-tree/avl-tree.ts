@@ -71,9 +71,6 @@ export const AvlTreeNode = <K, V>(key: K, value?: V): IAvlTreeNode<K, V> => {
     };
 };
 
-/**
- * This interface simply redefines some return types inherited from the standard IBinarySearchTree<K, V>.
- */
 export interface IAvlTree<K, V = K> {
     root: IAvlTreeNode<K, V>;
 
@@ -168,7 +165,7 @@ export const insertNodeIntoAvl = <K, V>(tree: IAvlTree<K, V>,
  * Delete the given key from the tree - iteratively.  A recursive solution is prettier and cooler, but it has the
  * potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).
  *
- * The logic below up to the call to super#_remove is actually duplicated from the #_remove method.  For an AVL
+ * The logic below up to the call to #removeNodeFromBst is actually duplicated from that function.  For an AVL
  * tree we need to know the original parent of the replacement to make it easier to update balance factors along
  * the path to the candidate.  An alternative would be to traverse the entire subtree after removal to try to
  * determine where the replacement came from.  This seemed more straight forward...
@@ -177,9 +174,9 @@ export const removeNodeFromAvl = <K, V>(tree: IAvlTree<K, V>,
                                         key: K,
                                         comparer: IComparer<K> = defaultComparer): IAvlTreeNode<K, V> => {
 
-    // For more information on the following lines (up to the call to super#_remove) see that method instead.
-    // The logic is duplicated to make book-keeping easier after the removal.  Essentially, we call #_find and
-    // #_findSuccessor here, then again in the reused code from super#_remove.  Both are quick O(log n)
+    // For more information on the following lines (up to the call to #removeNodeFromBst) see that method instead.
+    // The logic is duplicated to make book-keeping easier after the removal.  Essentially, we call #findNodeInAvl and
+    // #findNodeSuccessorInBst here, then again in the reused code from #removeNodeFromBst.  Both are quick O(log n)
     // operations, so running each twice is still O(log n) - essentially, a negligible performance hit.
     const candidate: IAvlTreeNode<K, V> = findNodeInAvl(tree, key, comparer);
     if (!candidate) return null;
