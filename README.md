@@ -6,7 +6,7 @@
 [![Test Coverage](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/coverage.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture/coverage)
 [![Issue Count](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/issue_count.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture)
 
-Arboriculture is a community-supported tree library providing a set of common tree data structures for TypeScript and
+Arboriculture is a small tree library providing a set of common tree data structures for TypeScript and
 JavaScript projects.  Unleash your inner lumberjack.
 
 >###### ISC License (ISC)
@@ -50,9 +50,21 @@ A few basic usage examples are shown.  Most trees have similar operations, so a 
 [Binary Search Tree](https://github.com/haleyhousellc/arboriculture/blob/master/src/binary-search-tree/binary-search-tree.ts)
 is shown for convenience.
 
-Get a new tree:
+---
+
+Get a new tree that stores number and uses value as the key (only one type parameter):
 ```typescript
-const bst: IBinarySearchTree<number> = new BinarySearchTree<number>();
+const bst0: IBinarySearchTree<number> = BinarySearchTree();
+
+// If providing type parameters to the factory call, you must include both.
+const bst1 = BinarySearchTree<number, number>();
+
+// Assuming bst1 is using the key as the value, bst1 is identical to bst2.
+const bst2: IBinarySearchTree<number> = BinarySearchTree();
+
+// If bst1 is NOT using the key as the value, but simply declaring the key and value each to be of type number, bst1 is 
+// identical to bst3.
+const bst3: IBinarySearchTree<number, number> = BinarySearchTree();
 ```
 
 Insert values:
@@ -96,22 +108,56 @@ Find a node with a given value:
 const node = bst.find(6);  // if the value does not exist, 'node' will be null
 ```
 
-Finally, an example showing complex types:
+---
+
+Next, an example using a complex stored type with a simple number key (two type parameters):
+```typescript
+interface IMyStoredObject {
+    m1: string;
+    m2: string;
+    m3: string;
+    m4: string;
+}
+
+const myStoredObject0 = {m1: 'm1', m2: 'm2', m3: 'm3', m4: 'm4'};
+const myStoredObject1 = {m1: 'm5', m2: 'm6', m3: 'm7', m4: 'm8'};
+
+const bst = BinarySearchTree<number, IMyStoredObject>();
+bst.insert(0, myStoredObject0);
+bst.insert(1, myStoredObject1);
+```
+
+---
+
+Finally, an example showing complex types and a complex key (two type parameters):
 ```typescript
 // Be sure you provide your own compare function when using a tree to store custom objects, otherwise insert, remove,
 // and find results are undefined.
-interface IMyObject {
+interface IMyKeyObject {
     member1: string;
     member2: number;
 }
 
-const myObject0 = { member1: 'hello there', member2: 35 };
-const myComparer = (a: IMyObject, b: IMyObject): number => {
+interface IMyStoredObject {
+    m1: string;
+    m2: string;
+    m3: string;
+    m4: string;
+}
+
+const myKeyObject0 = { member1: 'hello there', member2: 35 };
+const myStoredObject0 = {m1: 'm1', m2: 'm2', m3: 'm3', m4: 'm4'};
+
+const myComparer = (a: IMyKeyObject, b: IMyKeyObject): number => {
     return a.member2 - b.member2;
 };
 
-const bst: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myComparer);
-bst.insert(myObject0);
+const bst0 = BinarySearchTree<IMyKeyObject, IMyStoredObject>(myComparer);
+bst0.insert(myKeyObject0, myValueObject0);
+
+// alternatively - bst0 and bst1 will behave identically
+const bst1: IBinarySearchTree<number, IMyStoredObject> = BinaryTreeNode();
+bst1.insert(myKeyObject0.member2, myStoredObject0);
 ```
 
 ## Package Scripts

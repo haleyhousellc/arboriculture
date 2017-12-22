@@ -4,7 +4,7 @@ import { IBinaryTreeNode } from '../src/binary-tree/binary-tree';
 /* tslint:disable:no-magic-numbers */
 
 // create a new empty binary search tree holding numerical values
-const bst: IBinarySearchTree<number> = new BinarySearchTree<number>();
+const bst: IBinarySearchTree<number> = BinarySearchTree();
 console.log(bst.toString());  // ''
 
 
@@ -48,7 +48,7 @@ console.log(`find a node with value 400 => ${node}`);  // 'find a node with valu
 
 // Generic typing allows arbitrary objects to be stored as long as comparison is obvious (like with built-in types).  A
 // custom compare function may be provided during construction.
-const bstString: IBinarySearchTree<string> = new BinarySearchTree<string>();
+const bstString: IBinarySearchTree<string> = BinarySearchTree();
 
 // Be sure you provide your own compare function when using a tree to store custom objects, otherwise insert, remove,
 // and find results are undefined.
@@ -58,7 +58,6 @@ interface IMyObject {
 }
 
 const myObject0 = { member1: 'hello there', member2: 35 };
-const myComparer = (a: IMyObject, b: IMyObject): number => a.member2 - b.member2;
 
-const bstObject: IBinarySearchTree<IMyObject> = new BinarySearchTree<IMyObject>(myComparer);
-bstObject.insert(myObject0);
+const bstObject: IBinarySearchTree<number, IMyObject> = BinarySearchTree();
+bstObject.insert(myObject0.member2, myObject0);

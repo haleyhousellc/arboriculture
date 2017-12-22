@@ -10,7 +10,7 @@ describe('avl-tree.ts', () => {
     let avlt: IAvlTree<number>;
 
     before((done) => {
-        avlt = new AvlTree<number>();
+        avlt = AvlTree();
         done();
     });
 
@@ -38,7 +38,7 @@ describe('avl-tree.ts', () => {
                 avlt.clear();
                 expect(avlt.toString()).to.equal(``);
                 avlt.insert(5);
-                const temp = avlt.find(5) as IAvlTreeNode<number>;
+                const temp = avlt.find(5);
                 done();
             });
         });
@@ -98,11 +98,76 @@ describe('avl-tree.ts', () => {
             });
         });
 
-        describe('arbitrary object types, suite 1', () => {
+        describe(`arbitrary value type, number key`, () => {
             interface ITestType {
                 a: string;
                 b: string;
                 c: number;
+
+                toString(): string;
+            }
+
+            const t0: ITestType = {
+                a: 'hi',
+                b: 'there',
+                c: 1,
+                toString(): string {
+                    return `${this.a} ${this.b} ${this.c}`;
+                },
+            };
+
+            const t1: ITestType = {
+                a: 'what',
+                b: 'up',
+                c: 2,
+                toString(): string {
+                    return `${this.a} ${this.b} ${this.c}`;
+                },
+            };
+
+            const t2: ITestType = {
+                a: 'how',
+                b: 'goesit',
+                c: 3,
+                toString(): string {
+                    return `${this.a} ${this.b} ${this.c}`;
+                },
+            };
+
+            const avlAlt = AvlTree<number, ITestType>();
+
+            it(`should correctly insert an arbitrary type`, (done) => {
+                avlAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+                const s = avlAlt.toString();
+                expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
+                expect(avlAlt.count).to.equal(3);
+                done();
+            });
+
+            it(`should correctly delete an arbitrary type`, (done) => {
+                avlAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+                avlAlt.remove(0);
+                const s = avlAlt.toString();
+                expect(s.trim()).to.equal(`what up 2 | how goesit 3`);
+                expect(avlAlt.count).to.equal(2);
+                done();
+            });
+
+            it(`should correctly find an arbitrary type`, (done) => {
+                const node = avlAlt.find(1);
+                const s    = node.toString();
+                expect(s.trim()).to.equal(`value: what up 2, balance factor: 0`);
+                expect(avlAlt.count).to.equal(2);
+                done();
+            });
+        });
+
+        describe('arbitrary object types, arbitrary key', () => {
+            interface ITestType {
+                a: string;
+                b: string;
+                c: number;
+
                 toString(): string;
             }
 
@@ -137,29 +202,30 @@ describe('avl-tree.ts', () => {
                 },
             };
 
-            const avltAlt: IAvlTree<ITestType> = new AvlTree<ITestType>(testComparer);
+            const bstAlt = AvlTree<ITestType, ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
-                avltAlt.insert(t0).insert(t2).insert(t1);
-                const s = avltAlt.toString();
+                bstAlt.insert(t0).insert(t2).insert(t1);
+                const s = bstAlt.toString();
                 expect(s).to.equal(`hi there 1 | how goesit 2 | what up 4`);
-                expect(avltAlt.count).to.equal(3);
+                expect(bstAlt.count).to.equal(3);
                 done();
             });
 
             it(`should correctly delete an arbitrary type`, (done) => {
-                avltAlt.remove(t0);
-                const s = avltAlt.toString();
+                bstAlt.insert(t0).insert(t2).insert(t1);
+                bstAlt.remove(t0);
+                const s = bstAlt.toString();
                 expect(s.trim()).to.equal(`how goesit 2 | what up 4`);
-                expect(avltAlt.count).to.equal(2);
+                expect(bstAlt.count).to.equal(2);
                 done();
             });
 
             it(`should correctly find an arbitrary type`, (done) => {
-                const node = avltAlt.find(t1);
+                const node = bstAlt.find(t1);
                 const s    = node.toString();
-                expect(s.trim()).to.equal(`node => data: what up 4, balance factor: 0`);
-                expect(avltAlt.count).to.equal(2);
+                expect(s.trim()).to.equal(`value: what up 4, balance factor: 0`);
+                expect(bstAlt.count).to.equal(2);
                 done();
             });
         });

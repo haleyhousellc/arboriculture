@@ -1,66 +1,51 @@
 /**
  * Base binary tree node interface
  */
-export interface IBinaryTreeNode<T> {
-    data: T;
-    left: IBinaryTreeNode<T>;
-    right: IBinaryTreeNode<T>;
+export interface IBinaryTreeNode<K, V = K> {
+    key: K;
+    value: V;
+    left: IBinaryTreeNode<K, V> | any;
+    right: IBinaryTreeNode<K, V> | any;
+
     toString(): string;
 }
 
 /**
  * Implementation of base binary tree node
  */
-export class BinaryTreeNode<T> implements IBinaryTreeNode<T> {
-    protected _data: T;
-    protected _left: IBinaryTreeNode<T>;
-    protected _right: IBinaryTreeNode<T>;
+export const BinaryTreeNode = <K, V>(k: K, v?: V): IBinaryTreeNode<K, V> => {
 
-    constructor(data: T) {
-        this._data  = data;
-        this._left  = null;
-        this._right = null;
-    }
+    // internal members
+    const key: K   = k;
+    const value: V = v || (k as any) as V;  // ignore this trickery
 
-    public get data(): T {
-        return this._data;
-    }
+    const left: IBinaryTreeNode<K, V>  = null;
+    const right: IBinaryTreeNode<K, V> = null;
 
-    public set data(newData: T) {
-        this._data = newData;
-    }
+    // exposed object
+    return {
+        left,
 
-    public get left(): IBinaryTreeNode<T> {
-        return this._left;
-    }
+        right,
 
-    public set left(newLeft: IBinaryTreeNode<T>) {
-        this._left = newLeft;
-    }
+        get key(): K { return key; },
 
-    public get right(): IBinaryTreeNode<T> {
-        return this._right;
-    }
+        get value(): V { return value; },
 
-    public set right(newRight: IBinaryTreeNode<T>) {
-        this._right = newRight;
-    }
-
-    public toString(): string {
-        return `data: ${this._data}`;
-    }
-}
+        toString() { return `key: ${key}, value: ${value}`; },
+    };
+};
 
 /**
  * Interface for writing custom compare functions.
  */
-export type IComparer<T> = (a: T, b: T) => number;
+export type IComparer<K> = (a: K, b: K) => number;
 
 /**
  * The default comparison function performs simple comparison only.  On complex types, results are undefined.  It is up
  * to the user to correctly define a comparison function for custom types.
  */
-export const defaultComparer = <T>(a: T, b: T): number => {
+export const defaultComparer = <K>(a: K, b: K): number => {
     if (a < b) return -1;
     else if (a === b) return 0;
     else return 1;
@@ -73,88 +58,24 @@ export enum TraversalOrder {
     HIEGHTORDER,
 }
 
-export interface IBinaryTree<T> {
+export interface IBinaryTree<K, V> {
+    root: IBinaryTreeNode<K, V>;
+
     count: number;
-    find(data: T): IBinaryTreeNode<T>;
-    min(): IBinaryTreeNode<T>;
-    max(): IBinaryTreeNode<T>;
-    insert(data: T): IBinaryTree<T>;
-    remove(data: T): IBinaryTree<T>;
+
+    find(key: K): IBinaryTreeNode<K, V> | any;
+
+    min(): IBinaryTreeNode<K, V> | any;
+
+    max(): IBinaryTreeNode<K, V> | any;
+
+    insert(key: K, value?: V): IBinaryTree<K, V> | any;
+
+    remove(key: K): IBinaryTree<K, V> | any;
+
     clear(): void;
-    traverse(order: TraversalOrder): T[];
+
+    traverse(order: TraversalOrder): V[];
+
     toString(): string;
-}
-
-/**
- * Abstract class providing base interface for binary trees.  Since operations like #find, #min, #max, #insert, #delete,
- * #traverse, etc. are not exactly defined for a simple "binary tree", these operations are marked abstract and must be
- * implemented by subclasses.
- *
- * #count and #clear are provided since these should be universal, but they may still be overridden if desired.
- */
-export abstract class BinaryTree<T> implements IBinaryTree<T> {
-    protected _root: IBinaryTreeNode<T>;
-    protected _comparer: IComparer<T>;
-    protected _count: number;
-
-    constructor(comparer: IComparer<T>) {
-        this._root     = null;
-        this._comparer = comparer;
-        this._count    = 0;
-    }
-
-    /**
-     * This method simply returns the number of nodes in the tree.
-     */
-    public get count(): number {
-        return this._count;
-    }
-
-    /**
-     * This method clears the tree.  By setting the root to null, the reset of the tree should be garbage collected.
-     */
-    public clear(): void {
-        this._root = null;
-        this._count = 0;
-    }
-
-    /**
-     * This method takes a piece of data and returns the node that holds it if it is present in the tree.  Otherwise,
-     * null is returned.
-     */
-    public abstract find(data: T): IBinaryTreeNode<T>;
-
-    /**
-     * This method simply returns the minimum value of the tree.
-     */
-    public abstract min(): IBinaryTreeNode<T>;
-
-    /**
-     * This method simply returns the maximum value of the tree.
-     */
-    public abstract max(): IBinaryTreeNode<T>;
-
-    /**
-     * This method takes a piece of data, creates a new node, and inserts it into the tree.  The tree itself is
-     * returned, so this method is chainable.
-     */
-    public abstract insert(data: T): IBinaryTree<T>;
-
-    /**
-     * This method takes a piece of data and removes the node that holds it.  If the node is not present in the tree,
-     * no change is made.  The tree itself is returned, so this method is chainable.
-     */
-    public abstract remove(data: T): IBinaryTree<T>;
-
-    /**
-     * This method returns an array of the data in the tree according to the requested TraversalOrder.
-     */
-    public abstract traverse(order: TraversalOrder): T[];
-
-    /**
-     * This provides a string representation of the tree.  No specification is provided, so it is up to the specific
-     * tree on how to implement this.
-     */
-    public abstract toString(): string;
-
 }

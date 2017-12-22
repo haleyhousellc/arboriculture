@@ -10,22 +10,13 @@ export type StringKeyStringValue = { [s: string]: string };
 /**
  * Defines a generic type with string keys and values of type T
  */
-export type StringKeyObjectValue<T> = { [s: string]: T};
+export type StringKeyObjectValue<K, V> = { [s: string]: V};
 
 /**
  * Typescript hack - this facilitates a "typed strings" type.  Essentially an enum with string keys.
  */
 export type UnionKeyToValue<U extends string> = { [K in U]: K; };
 
-/**
- * The current package version
- */
-export const VERSION: string    = '0.2.2';
-
-/**
- * The user agent string
- */
-export const USER_AGENT: string = `arboriculture/${VERSION}`;
 
 /**
  * Convenience type representing a uuid version.  Default is v1 (time-based), v4 (random) is also available
