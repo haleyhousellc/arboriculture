@@ -2,9 +2,10 @@
 
 [![npm version](https://badge.fury.io/js/arboriculture.svg)](https://badge.fury.io/js/arboriculture)
 [![Build Status](https://travis-ci.org/haleyhousellc/arboriculture.svg?branch=master)](https://travis-ci.org/haleyhousellc/arboriculture)
-[![Code Climate](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/gpa.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture)
-[![Test Coverage](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/coverage.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture/coverage)
-[![Issue Count](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/issue_count.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture)
+<!--Uncomment these badges when Code Climate configuration kinks are worked out.-->
+<!--[![Code Climate](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/gpa.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture)-->
+<!--[![Test Coverage](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/coverage.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture/coverage)-->
+<!--[![Issue Count](https://codeclimate.com/github/haleyhousellc/arboriculture/badges/issue_count.svg)](https://codeclimate.com/github/haleyhousellc/arboriculture)-->
 
 Arboriculture is a small tree library providing a set of common tree data structures for TypeScript and
 JavaScript projects.  Unleash your inner lumberjack.
