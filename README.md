@@ -54,7 +54,7 @@ is shown for convenience.
 
 Get a new tree that stores number and uses value as the key (only one type parameter):
 ```typescript
-const bst0: IBinarySearchTree<number> = BinarySearchTree();
+const bst: IBinarySearchTree<number> = BinarySearchTree();
 
 // If providing type parameters to the factory call, you must include both.
 const bst1 = BinarySearchTree<number, number>();
