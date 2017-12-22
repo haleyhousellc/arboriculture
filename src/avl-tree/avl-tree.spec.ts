@@ -7,10 +7,10 @@ import { AvlTree, IAvlTree, IAvlTreeNode } from './avl-tree';
 
 describe('avl-tree.ts', () => {
 
-    let avlt: IAvlTree<number, number>;
+    let avlt: IAvlTree<number>;
 
     before((done) => {
-        avlt = new AvlTree<number, number>();
+        avlt = AvlTree();
         done();
     });
 
@@ -38,7 +38,7 @@ describe('avl-tree.ts', () => {
                 avlt.clear();
                 expect(avlt.toString()).to.equal(``);
                 avlt.insert(5);
-                const temp = avlt.find(5) as IAvlTreeNode<number, number>;
+                const temp = avlt.find(5);
                 done();
             });
         });
@@ -84,14 +84,14 @@ describe('avl-tree.ts', () => {
 
         describe('#find', () => {
             it(`should find an element that is present in the tree`, (done) => {
-                const node: IBinaryTreeNode<number, number> = avlt.find(6);
+                const node: IBinaryTreeNode<number> = avlt.find(6);
                 assert(node, `node should not be null`);
                 expect(avlt.count).to.equal(8);
                 done();
             });
 
             it(`should not find an element that is not present in the tree`, (done) => {
-                const node: IBinaryTreeNode<number, number> = avlt.find(60);
+                const node: IBinaryTreeNode<number> = avlt.find(60);
                 assert(!node, `node should be null`);
                 expect(avlt.count).to.equal(8);
                 done();
@@ -134,7 +134,7 @@ describe('avl-tree.ts', () => {
                 },
             };
 
-            const avlAlt = new AvlTree<number, ITestType>();
+            const avlAlt = AvlTree<number, ITestType>();
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 avlAlt.insert(0, t0).insert(2, t2).insert(1, t1);
@@ -202,7 +202,7 @@ describe('avl-tree.ts', () => {
                 },
             };
 
-            const bstAlt = new AvlTree<ITestType, ITestType>(testComparer);
+            const bstAlt = AvlTree<ITestType, ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1);

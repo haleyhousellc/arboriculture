@@ -11,7 +11,7 @@ describe('binary-search-tree.ts', () => {
     let bst: IBinarySearchTree<number, number>;
 
     before((done) => {
-        bst = new BinarySearchTree<number, number>();
+        bst = BinarySearchTree<number, number>();
         done();
     });
 
@@ -119,7 +119,7 @@ describe('binary-search-tree.ts', () => {
                 },
             };
 
-            const bstAlt = new BinarySearchTree<number, ITestType>();
+            const bstAlt = BinarySearchTree<number, ITestType>();
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
@@ -187,7 +187,7 @@ describe('binary-search-tree.ts', () => {
                 },
             };
 
-            const bstAlt = new BinarySearchTree<ITestType, ITestType>(testComparer);
+            const bstAlt = BinarySearchTree<ITestType, ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1);

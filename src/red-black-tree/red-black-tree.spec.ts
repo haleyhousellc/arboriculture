@@ -8,10 +8,10 @@ import { IRedBlackTree, RedBlackTree } from './red-black-tree';
 
 describe('red-black-tree.ts', () => {
 
-    let rbt: IRedBlackTree<number, number>;
+    let rbt: IRedBlackTree<number>;
 
     before((done) => {
-        rbt = new RedBlackTree<number, number>();
+        rbt = RedBlackTree();
         done();
     });
 
@@ -74,15 +74,15 @@ describe('red-black-tree.ts', () => {
 
         describe('#find', () => {
             it(`should find an element that is present in the tree`, (done) => {
-                const node: IBinaryTreeNode<number, number> = rbt.find(6);
+                const node: IBinaryTreeNode<number> = rbt.find(6);
                 assert(node, `node should not be null`);
                 expect(rbt.count).to.equal(8);
                 done();
             });
 
             it(`should not find an element that is not present in the tree`, (done) => {
-                const node: IBinaryTreeNode<number, number> = rbt.find(60);
-                assert(!node, `node should be null`);
+                const node: IBinaryTreeNode<number> = rbt.find(60);
+                assert(node === rbt.sentinel, `node should point to the tree's sentinel`);
                 expect(rbt.count).to.equal(8);
                 done();
             });
@@ -124,7 +124,7 @@ describe('red-black-tree.ts', () => {
                 },
             };
 
-            const bstAlt = new RedBlackTree<number, ITestType>();
+            const bstAlt = RedBlackTree<number, ITestType>();
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
@@ -192,7 +192,7 @@ describe('red-black-tree.ts', () => {
                 },
             };
 
-            const bstAlt = new RedBlackTree<ITestType, ITestType>(testComparer);
+            const bstAlt = RedBlackTree<ITestType, ITestType>(testComparer);
 
             it(`should correctly insert an arbitrary type`, (done) => {
                 bstAlt.insert(t0).insert(t2).insert(t1);
