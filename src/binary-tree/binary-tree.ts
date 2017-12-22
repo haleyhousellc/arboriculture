@@ -19,22 +19,18 @@ export const BinaryTreeNode = <K, V>(k: K, v?: V): IBinaryTreeNode<K, V> => {
     const key: K   = k;
     const value: V = v || (k as any) as V;  // ignore this trickery
 
-    let left: IBinaryTreeNode<K, V>  = null;
-    let right: IBinaryTreeNode<K, V> = null;
+    const left: IBinaryTreeNode<K, V>  = null;
+    const right: IBinaryTreeNode<K, V> = null;
 
     // exposed object
     return {
+        left,
+
+        right,
+
         get key(): K { return key; },
 
         get value(): V { return value; },
-
-        get left(): IBinaryTreeNode<K, V> { return left; },
-
-        set left(newLeft: IBinaryTreeNode<K, V>) { left = newLeft; },
-
-        get right(): IBinaryTreeNode<K, V> { return right; },
-
-        set right(newRight: IBinaryTreeNode<K, V>) { right = newRight; },
 
         toString() { return `key: ${key}, value: ${value}`; },
     };
