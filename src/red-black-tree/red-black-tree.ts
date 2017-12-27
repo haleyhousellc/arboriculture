@@ -137,15 +137,22 @@ export const insertNodeIntoRbt = <K, V>(tree: IRedBlackTree<K, V>,
                                         newNode: IRedBlackTreeNode<K, V>,
                                         comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
 
-    let currentParent: IRedBlackTreeNode<K, V> = tree.sentinel;
-    let current: IRedBlackTreeNode<K, V>       = tree.root;
+    let parent: IRedBlackTreeNode<K, V>  = tree.sentinel;
+    let current: IRedBlackTreeNode<K, V> = tree.root;
 
     // Iterate over the tree to find the new node's parent.
     while (current !== tree.sentinel) {
-        currentParent = current;
+        parent = current;
 
-        // Don't allow duplicates, so simply return if the key is already present in the tree.
-        if (comparer(newNode.key, current.key) === 0) return null;
+        // Don't allow duplicates, so default to replacing the node entirely.  (I assume the user knows what he/she/it
+        // is doing.)
+        //
+        // Just reset the parent here and break.
+        if (comparer(newNode.key, current.key) === 0) {
+            parent = current.parent;
+
+            break;
+        }
 
         // Otherwise traverse the appropriate child.
         if (comparer(newNode.key, current.key) < 0) current = current.left;
@@ -153,14 +160,14 @@ export const insertNodeIntoRbt = <K, V>(tree: IRedBlackTree<K, V>,
     }
 
     // Assign the appropriate parent to the new node.
-    newNode.parent = currentParent;
+    newNode.parent = parent;
 
     // If the parent is still the sentinel, the tree was empty and the new node becomes the new root.
-    if (currentParent === tree.sentinel) tree.root = newNode;
+    if (parent === tree.sentinel) tree.root = newNode;
 
     // Otherwise, determine whether the new node should be the left or right child of its parent and link it.
-    else if (comparer(newNode.key, currentParent.key) < 0) currentParent.left = newNode;
-    else currentParent.right = newNode;
+    else if (comparer(newNode.key, parent.key) < 0) parent.left = newNode;
+    else parent.right = newNode;
 
     newNode.left  = tree.sentinel;
     newNode.right = tree.sentinel;

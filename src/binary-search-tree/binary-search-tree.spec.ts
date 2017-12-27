@@ -49,6 +49,21 @@ describe('binary-search-tree', () => {
             expect(bst.size()).to.equal(8);
             done();
         });
+
+        it(`should replace an existing node if inserting an existing key`, done => {
+            const bstAlt: IBinarySearchTree<number, string> = BinarySearchTree();
+
+            bstAlt.insert(2, 'a string for key 2');
+            const s1 = bstAlt.toString();
+
+            bstAlt.insert(2, 'a new string for key 2');
+            const s2 = bstAlt.toString();
+
+            assert(s1 !== s2, `key 2 should have replaced value`);
+            expect(bstAlt.size()).to.equal(1);
+
+            done();
+        });
     });
 
     describe('#remove', () => {
@@ -143,7 +158,7 @@ describe('binary-search-tree', () => {
 
         it(`should correctly find an arbitrary type`, (done) => {
             const value = bstAlt.find(1);
-            const s    = value.toString();
+            const s     = value.toString();
             expect(s.trim()).to.equal(`what up 2`);
             expect(bstAlt.size()).to.equal(2);
             done();
@@ -211,7 +226,7 @@ describe('binary-search-tree', () => {
 
         it(`should correctly find an arbitrary type`, (done) => {
             const value = bstAlt.find(t1);
-            const s    = value.toString();
+            const s     = value.toString();
             expect(s.trim()).to.equal(`what up 4`);
             expect(bstAlt.size()).to.equal(2);
             done();

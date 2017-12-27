@@ -50,6 +50,21 @@ describe('red-black-tree', () => {
             expect(rbt.size()).to.equal(8);
             done();
         });
+
+        it(`should replace an existing node if inserting an existing key`, done => {
+            const bstAlt: IRedBlackTree<number, string> = RedBlackTree();
+
+            bstAlt.insert(2, 'a string for key 2');
+            const s1 = bstAlt.toString();
+
+            bstAlt.insert(2, 'a new string for key 2');
+            const s2 = bstAlt.toString();
+
+            assert(s1 !== s2, `key 2 should have replaced value`);
+            expect(bstAlt.size()).to.equal(1);
+
+            done();
+        });
     });
 
     describe('#remove', () => {
@@ -126,6 +141,7 @@ describe('red-black-tree', () => {
         const bstAlt = RedBlackTree<number, ITestType>();
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
@@ -134,6 +150,7 @@ describe('red-black-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
             bstAlt.remove(0);
             const s = bstAlt.toString();
@@ -143,10 +160,12 @@ describe('red-black-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            bstAlt.clear();
+            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
             const value = bstAlt.find(1);
-            const s    = value.toString();
+            const s     = value.toString();
             expect(s.trim()).to.equal(`what up 2`);
-            expect(bstAlt.size()).to.equal(2);
+            expect(bstAlt.size()).to.equal(3);
             done();
         });
     });
@@ -212,7 +231,7 @@ describe('red-black-tree', () => {
 
         it(`should correctly find an arbitrary type`, (done) => {
             const value = bstAlt.find(t1);
-            const s    = value.toString();
+            const s     = value.toString();
             expect(s.trim()).to.equal(`what up 4`);
             expect(bstAlt.size()).to.equal(2);
             done();

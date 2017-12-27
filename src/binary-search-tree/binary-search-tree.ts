@@ -123,13 +123,19 @@ export const insertNodeIntoBst = <K, V>(tree: IBinarySearchTree<K, V>,
     let parent: IBinarySearchTreeNode<K, V>  = null;
     let current: IBinarySearchTreeNode<K, V> = tree.root;
 
-
     // Iterate over the tree to find the new node's parent.
     while (current) {
         parent = current;
 
-        // Don't allow duplicates, so simply return if the key is already present in the tree.
-        if (comparer(newNode.key, current.key) === 0) return null;
+        // Don't allow duplicates, so default to replacing the node entirely.  (I assume the user knows what he/she/it
+        // is doing.)
+        //
+        // Just reset the parent here and break.
+        if (comparer(newNode.key, current.key) === 0) {
+            parent = current.parent;
+
+            break;
+        }
 
         // Otherwise traverse the appropriate child.
         else if (comparer(newNode.key, current.key) < 0) current = current.left;
@@ -263,42 +269,6 @@ export const getMinNodeInBst = <K, V>(tree: IBinarySearchTree<K, V>): IBinarySea
     }
 
     return currentNode;
-};
-
-export const traverseBst = <K, V>(tree: IBinarySearchTree<K, V>,
-                                  order: TraversalOrder = TraversalOrder.INORDER): V[] => {
-    if (!tree.root) return [];
-
-    const orderedData: V[] = [];
-
-    // Stacks make sense for what essentially amounts to a depth-first search.
-    const stack: IBinarySearchTreeNode<K, V>[] = [];
-    let current                                = tree.root;
-
-    // Build initial stack by traversing left
-    while (current) {
-        stack.push(current);
-        current = current.left;
-    }
-
-    // Now traverse the tree from the minimum value.
-    while (stack.length > 0) {
-        current = stack.pop();
-        orderedData.push(current.value);
-
-        // If the current node has a right child, traverse that subtree before backing out.
-        if (current.right) {
-            current = current.right;
-
-            // Like above, push until a leaf is reached.
-            while (current) {
-                stack.push(current);
-                current = current.left;
-            }
-        }
-    }
-
-    return orderedData;
 };
 
 export const findNodeSuccessorInBst = <K, V>(tree: IBinarySearchTree<K, V>,
