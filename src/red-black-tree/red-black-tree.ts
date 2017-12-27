@@ -42,17 +42,17 @@ export const RedBlackTreeNode = <K, V>(key?: K, value?: V): IRedBlackTreeNode<K,
 export interface IRedBlackTree<K, V = K> {
     root: IRedBlackTreeNode<K, V>;
 
-    count: number;
-
     sentinel: IRedBlackTreeNode<K, V>;
+
+    size(): number;
 
     clear(): void;
 
-    find(key: K): IRedBlackTreeNode<K, V>;
+    find(key: K): V;
 
-    min(): IRedBlackTreeNode<K, V>;
+    min(): V;
 
-    max(): IRedBlackTreeNode<K, V>;
+    max(): V;
 
     insert(key: K, value?: V): IRedBlackTree<K, V>;
 
@@ -69,22 +69,33 @@ export interface IRedBlackTree<K, V = K> {
 export const RedBlackTree = <K, V>(comparer: IComparer<K> = defaultComparer): IRedBlackTree<K, V> => {
     const sentinel: IRedBlackTreeNode<K, V> = makeSentinel();
     const root: IRedBlackTreeNode<K, V>     = sentinel;
-    const count: number                     = 0;
 
     return {
-        count,
-
         root,
 
         sentinel,
 
+        size(): number { return this.traverse().length; },
+
         clear(): void { return clearRbt(this); },
 
-        find(key: K): IRedBlackTreeNode<K, V> { return findNodeInRbt(this, key, comparer); },
+        find(key: K): V {
+            const node: IRedBlackTreeNode<K, V> = findNodeInRbt(this, key, comparer);
 
-        min(): IRedBlackTreeNode<K, V> { return getMinNodeInRbt(this); },
+            return (node && node !== this.sentinel) ? node.value : null;
+        },
 
-        max(): IRedBlackTreeNode<K, V> { return getMaxNodeInRbt(this); },
+        min(): V {
+            const node: IRedBlackTreeNode<K, V> = getMinNodeInRbt(this);
+
+            return node ? node.value : null;
+        },
+
+        max(): V {
+            const node: IRedBlackTreeNode<K, V> = getMaxNodeInRbt(this);
+
+            return node ? node.value : null;
+        },
 
         insert(key: K, value?: V): IRedBlackTree<K, V> {
             const newNode = RedBlackTreeNode(key, value);
@@ -99,7 +110,9 @@ export const RedBlackTree = <K, V>(comparer: IComparer<K> = defaultComparer): IR
             return this;
         },
 
-        traverse(order: TraversalOrder = TraversalOrder.INORDER): V[] { return traverseRbt(this, order); },
+        traverse(order: TraversalOrder = TraversalOrder.INORDER): V[] {
+            return traverseRbt(this.root, order, this.sentinel);
+        },
 
         toString(order: TraversalOrder = TraversalOrder.INORDER): string {
             return this.traverse(order)
@@ -156,9 +169,6 @@ export const insertNodeIntoRbt = <K, V>(tree: IRedBlackTree<K, V>,
     // Fix any issues that may have arisen with the addition of another red node.
     fixInsertionIntoRbt(tree, newNode);
 
-    // Finally, admit that a node has been added ;).
-    tree.count++;
-
     // Return the newly inserted node.
     return newNode;
 };
@@ -204,9 +214,6 @@ export const removeNodeFromRbt = <K, V>(tree: IRedBlackTree<K, V>,
 
     // If the node that replaced the deleted node in the tree is black, fix any violations that exist.
     if (replacement.color === RedBlackTreeNodeColor.BLACK) fixDeletionFromSubtree(tree, newSuccessor);
-
-    // Finally, admit that a node has been removed ;).
-    tree.count--;
 
     // Return all parties involved in node removal: the candidate (deleted node), the candidate's replacement in the
     // tree, and the new successor (successor to the replacement).
@@ -471,42 +478,6 @@ const rotateRbtSubtreeRight = <K, V>(tree: IRedBlackTree<K, V>, candidate: IRedB
     candidate.parent = replacement;
 };
 
-export const traverseRbt = <K, V>(tree: IRedBlackTree<K, V>,
-                                  order: TraversalOrder = TraversalOrder.INORDER): V[] => {
-    if (tree.root === tree.sentinel) return [];
-
-    const orderedData: V[] = [];
-
-    // Stacks make sense for what essentially amounts to a depth-first search.
-    const stack: IRedBlackTreeNode<K, V>[] = [];
-    let current: IRedBlackTreeNode<K, V>   = tree.root;
-
-    // Build initial stack by traversing left
-    while (current !== tree.sentinel) {
-        stack.push(current);
-        current = current.left;
-    }
-
-    // Now traverse the tree from the minimum value.
-    while (stack.length > 0) {
-        current = stack.pop();
-        orderedData.push(current.value);
-
-        // If the current node has a right child, traverse that subtree before backing out.
-        if (current.right !== tree.sentinel) {
-            current = current.right;
-
-            // Like above, push until a leaf is reached.
-            while (current !== tree.sentinel) {
-                stack.push(current);
-                current = current.left;
-            }
-        }
-    }
-
-    return orderedData;
-};
-
 /**
  * Search the tree for a given key - iteratively.  A recursive solution is prettier and cooler, but it has
  * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
@@ -533,7 +504,7 @@ export const findNodeInRbt = <K, V>(tree: IRedBlackTree<K, V>,
         else currentNode = currentNode.right;
     }
 
-    // Return the current node (an actual node if the target is found, null if not).
+    // Return the current node (an actual node if the target is found, sentinel if not).
     return currentNode;
 };
 
@@ -600,4 +571,51 @@ export const makeSentinel = <K, V>(): IRedBlackTreeNode<K, V> => {
     sentinel.color                          = RedBlackTreeNodeColor.BLACK;
 
     return sentinel;
+};
+
+/**
+ * Start supporting recursive tree functions
+ */
+export const traverseRbt = <K, V>(root: IRedBlackTreeNode<K, V>,
+                                  order: TraversalOrder = TraversalOrder.INORDER,
+                                  sentinel: IRedBlackTreeNode<K, V>): V[] => {
+    switch (order) {
+        case TraversalOrder.PREORDER:
+            return traverseTreePreOrder(root, sentinel);
+        case TraversalOrder.POSTORDER:
+            return traverseTreePostOrder(root, sentinel);
+        case TraversalOrder.INORDER:
+        default:
+            return traverseTreeInOrder(root, sentinel);
+    }
+};
+
+export const traverseTreeInOrder = <K, V>(root: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): V[] => {
+    if (root === sentinel) return [];
+
+    const left  = traverseTreeInOrder(root.left, sentinel);
+    const self  = root.value;
+    const right = traverseTreeInOrder(root.right, sentinel);
+
+    return [].concat(left, self, right);
+};
+
+export const traverseTreePreOrder = <K, V>(root: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): V[] => {
+    if (root === sentinel) return [];
+
+    const left  = traverseTreePreOrder(root.left, sentinel);
+    const self  = root.value;
+    const right = traverseTreePreOrder(root.right, sentinel);
+
+    return [].concat(self, left, right);
+};
+
+export const traverseTreePostOrder = <K, V>(root: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): V[] => {
+    if (root === sentinel) return [];
+
+    const left  = traverseTreePostOrder(root.left, sentinel);
+    const self  = root.value;
+    const right = traverseTreePostOrder(root.right, sentinel);
+
+    return [].concat(left, right, self);
 };

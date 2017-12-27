@@ -1,5 +1,6 @@
 import {
     defaultComparer,
+    traverseTree,
     BinaryTreeNode,
     IBinaryTreeNode,
     IComparer,
@@ -35,15 +36,15 @@ export const BinarySearchTreeNode = <K, V>(key: K, value?: V): IBinarySearchTree
 export interface IBinarySearchTree<K, V = K> {
     root: IBinarySearchTreeNode<K, V>;
 
-    count: number;
+    size(): number;
 
     clear(): void;
 
-    find(key: K): IBinarySearchTreeNode<K, V>;
+    find(key: K): V;
 
-    min(): IBinarySearchTreeNode<K, V>;
+    min(): V;
 
-    max(): IBinarySearchTreeNode<K, V>;
+    max(): V;
 
     insert(key: K, value?: V): IBinarySearchTree<K, V>;
 
@@ -59,20 +60,31 @@ export interface IBinarySearchTree<K, V = K> {
  */
 export const BinarySearchTree = <K, V>(comparer: IComparer<K> = defaultComparer): IBinarySearchTree<K, V> => {
     const root: IBinarySearchTreeNode<K, V> = null;
-    const count: number                     = 0;
 
     return {
-        count,
-
         root,
+
+        size(): number { return this.traverse().length; },
 
         clear(): void { return clearBst(this); },
 
-        find(key: K): IBinarySearchTreeNode<K, V> { return findNodeInBst(this, key, comparer); },
+        find(key: K): V {
+            const node: IBinarySearchTreeNode<K, V> = findNodeInBst(this, key, comparer);
 
-        min(): IBinarySearchTreeNode<K, V> { return getMinNodeInBst(this); },
+            return node ? node.value : null;
+        },
 
-        max(): IBinarySearchTreeNode<K, V> { return getMaxNodeInBst(this); },
+        min(): V {
+            const node: IBinarySearchTreeNode<K, V> = getMinNodeInBst(this);
+
+            return node ? node.value : null;
+        },
+
+        max(): V {
+            const node: IBinarySearchTreeNode<K, V> = getMaxNodeInBst(this);
+
+            return node ? node.value : null;
+        },
 
         insert(key: K, value?: V): IBinarySearchTree<K, V> {
             const newNode = BinarySearchTreeNode(key, value);
@@ -87,7 +99,7 @@ export const BinarySearchTree = <K, V>(comparer: IComparer<K> = defaultComparer)
             return this;
         },
 
-        traverse(order: TraversalOrder = TraversalOrder.INORDER): V[] { return traverseBst(this, order); },
+        traverse(order: TraversalOrder = TraversalOrder.INORDER): V[] { return traverseTree(this.root, order); },
 
         toString(order: TraversalOrder = TraversalOrder.INORDER): string {
             return this.traverse(order)
@@ -97,10 +109,7 @@ export const BinarySearchTree = <K, V>(comparer: IComparer<K> = defaultComparer)
     };
 };
 
-export const clearBst = <K, V>(tree: IBinarySearchTree<K, V>): void => {
-    tree.root  = null;
-    tree.count = 0;
-};
+export const clearBst = <K, V>(tree: IBinarySearchTree<K, V>): void => tree.root = null;
 
 /**
  * Insert the given key into the tree - iteratively.  No duplicates are allowed.  If the new node is a
@@ -136,9 +145,6 @@ export const insertNodeIntoBst = <K, V>(tree: IBinarySearchTree<K, V>,
     // Otherwise, determine whether the new node is the left or right child of it's parent and link it.
     else if (comparer(newNode.key, parent.key) < 0) parent.left = newNode;
     else parent.right = newNode;
-
-    // Finally, increment the node count.
-    tree.count++;
 
     // Return the newly inserted node.
     return newNode;
@@ -187,9 +193,6 @@ export const removeNodeFromBst = <K, V>(tree: IBinarySearchTree<K, V>,
 
     // Replace the candidate with the replacement (essentially deleting the candidate).
     if (replacement !== candidate) candidate.value = replacement.value;
-
-    // Finally, decrement the node count.
-    tree.count--;
 
     // Return all parties involved in node removal: the candidate (deleted node), the candidate's replacement in the
     // tree, and the new successor (successor to the replacement).

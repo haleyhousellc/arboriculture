@@ -55,19 +55,19 @@ export enum TraversalOrder {
     PREORDER,
     INORDER,
     POSTORDER,
-    HIEGHTORDER,
+//    HIEGHTORDER,
 }
 
 export interface IBinaryTree<K, V> {
     root: IBinaryTreeNode<K, V>;
 
-    count: number;
+    size(): number;
 
-    find(key: K): IBinaryTreeNode<K, V> | any;
+    find(key: K): V | any;
 
-    min(): IBinaryTreeNode<K, V> | any;
+    min(): V | any;
 
-    max(): IBinaryTreeNode<K, V> | any;
+    max(): V | any;
 
     insert(key: K, value?: V): IBinaryTree<K, V> | any;
 
@@ -79,3 +79,48 @@ export interface IBinaryTree<K, V> {
 
     toString(): string;
 }
+
+/**
+ * Start supporting recursive tree functions
+ */
+export const traverseTree = <K, V>(root: IBinaryTreeNode<K, V>, order: TraversalOrder = TraversalOrder.INORDER): V[] => {
+    switch (order) {
+        case TraversalOrder.PREORDER:
+            return traverseTreePreOrder(root);
+        case TraversalOrder.POSTORDER:
+            return traverseTreePostOrder(root);
+        case TraversalOrder.INORDER:
+        default:
+            return traverseTreeInOrder(root);
+    }
+};
+
+export const traverseTreeInOrder = <K, V>(root: IBinaryTreeNode<K, V>): V[] => {
+    if (!root) return [];
+
+    const left  = traverseTreeInOrder(root.left);
+    const self  = root.value;
+    const right = traverseTreeInOrder(root.right);
+
+    return [].concat(left, self, right);
+};
+
+export const traverseTreePreOrder = <K, V>(root: IBinaryTreeNode<K, V>): V[] => {
+    if (!root) return [];
+
+    const left  = traverseTreePreOrder(root.left);
+    const self  = root.value;
+    const right = traverseTreePreOrder(root.right);
+
+    return [].concat(self, left, right);
+};
+
+export const traverseTreePostOrder = <K, V>(root: IBinaryTreeNode<K, V>): V[] => {
+    if (!root) return [];
+
+    const left  = traverseTreePostOrder(root.left);
+    const self  = root.value;
+    const right = traverseTreePostOrder(root.right);
+
+    return [].concat(left, right, self);
+};
