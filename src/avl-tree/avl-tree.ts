@@ -6,11 +6,10 @@ import {
     getMinNodeInBst,
     insertNodeIntoBst,
     removeNodeFromBst,
-    traverseBst,
     BinarySearchTreeNode,
     IBinarySearchTreeNode,
 } from '../binary-search-tree/binary-search-tree';
-import { defaultComparer, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
+import { defaultComparer, traverseTree, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
 
 export enum BalanceFactor {
     RIGHT_HEAVY   = -2,
@@ -74,15 +73,15 @@ export const AvlTreeNode = <K, V>(key: K, value?: V): IAvlTreeNode<K, V> => {
 export interface IAvlTree<K, V = K> {
     root: IAvlTreeNode<K, V>;
 
-    count: number;
+    size(): number;
 
     clear(): void;
 
-    find(key: K): IAvlTreeNode<K, V>;
+    find(key: K): V;
 
-    min(): IAvlTreeNode<K, V>;
+    min(): V;
 
-    max(): IAvlTreeNode<K, V>;
+    max(): V;
 
     insert(key: K, value?: V): IAvlTree<K, V>;
 
@@ -95,20 +94,31 @@ export interface IAvlTree<K, V = K> {
 
 export const AvlTree = <K, V>(comparer: IComparer<K> = defaultComparer): IAvlTree<K, V> => {
     const root: IAvlTreeNode<K, V> = null;
-    const count: number            = 0;
 
     return {
-        count,
-
         root,
+
+        size(): number { return this.traverse().length; },
 
         clear(): void { return clearAvl(this); },
 
-        find(key: K): IAvlTreeNode<K, V> { return findNodeInAvl(this, key, comparer); },
+        find(key: K): V {
+            const node: IAvlTreeNode<K, V> = findNodeInAvl(this, key, comparer);
 
-        min(): IAvlTreeNode<K, V> { return getMinNodeInAvl(this); },
+            return node ? node.value : null;
+        },
 
-        max(): IAvlTreeNode<K, V> { return getMaxNodeInAvl(this); },
+        min(): V {
+            const node: IAvlTreeNode<K, V> = getMinNodeInAvl(this);
+
+            return node ? node.value : null;
+        },
+
+        max(): V {
+            const node: IAvlTreeNode<K, V> = getMaxNodeInAvl(this);
+
+            return node ? node.value : null;
+        },
 
         insert(key: K, value?: V): IAvlTree<K, V> {
             const newNode = AvlTreeNode(key, value);
@@ -123,7 +133,7 @@ export const AvlTree = <K, V>(comparer: IComparer<K> = defaultComparer): IAvlTre
             return this;
         },
 
-        traverse(order: TraversalOrder = TraversalOrder.INORDER): V[] { return traverseAvl(this, order); },
+        traverse(order: TraversalOrder = TraversalOrder.INORDER): V[] { return traverseTree(this.root, order); },
 
         toString(order: TraversalOrder = TraversalOrder.INORDER): string {
             return this.traverse(order)
@@ -414,8 +424,4 @@ export const rotateAvlSubtreeRightThenLeft = <K, V>(tree: IAvlTree<K, V>,
     rotateAvlSubtreeRight(tree, candidate.right);
 
     return rotateAvlSubtreeLeft(tree, candidate);
-};
-
-export const traverseAvl = <K, V>(tree: IAvlTree<K, V>, order: TraversalOrder = TraversalOrder.INORDER): V[] => {
-    return traverseBst(tree, order);
 };
