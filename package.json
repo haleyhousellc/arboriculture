@@ -1,6 +1,6 @@
 {
   "name": "arboriculture",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A collection of data structures whose traditional naming suggests they were inspired by a walk in the woods.",
   "main": "dist/es6/index.js",
   "types": "dist/es6/index.d.ts",
