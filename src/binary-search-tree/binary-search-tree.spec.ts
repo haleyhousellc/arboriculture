@@ -86,6 +86,14 @@ describe('binary-search-tree', () => {
     });
 
     describe('#find', () => {
+        it(`should return null if tree is empty`, done => {
+            const bstLocal: IBinarySearchTree<number, number> = BinarySearchTree();
+            const value = bstLocal.find(0);
+            assert(value === null, `value should be null since tree is empty`);
+            expect(bstLocal.size()).to.equal(0);
+            done();
+        });
+
         it(`should find an element that is present in the tree`, (done) => {
             const value: number = bst.find(6);
             assert(value, `value should not be null`);

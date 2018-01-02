@@ -75,7 +75,7 @@ export interface IBinaryTree<K, V> {
 
     clear(): void;
 
-    traverse(order: TraversalOrder): V[];
+    traverse(order?: TraversalOrder): V[];
 
     toString(): string;
 }

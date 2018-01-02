@@ -97,6 +97,14 @@ describe('avl-tree', () => {
     });
 
     describe('#find', () => {
+        it(`should return null if tree is empty`, done => {
+            const avlLocal: IAvlTree<number, number> = AvlTree();
+            const value = avlLocal.find(0);
+            assert(value === null, `value should be null since tree is empty`);
+            expect(avlLocal.size()).to.equal(0);
+            done();
+        });
+
         it(`should find an element that is present in the tree`, (done) => {
             const value: number = avlt.find(6);
             assert(value, `value should not be null`);

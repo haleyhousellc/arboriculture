@@ -58,7 +58,7 @@ export interface IRedBlackTree<K, V = K> {
 
     remove(key: K): IRedBlackTree<K, V>;
 
-    traverse(order: TraversalOrder): V[];
+    traverse(order?: TraversalOrder): V[];
 
     toString(): string;
 }
