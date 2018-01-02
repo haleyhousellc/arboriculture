@@ -50,7 +50,7 @@ export interface IBinarySearchTree<K, V = K> {
 
     remove(key: K): IBinarySearchTree<K, V>;
 
-    traverse(order: TraversalOrder): V[];
+    traverse(order?: TraversalOrder): V[];
 
     toString(): string;
 }
