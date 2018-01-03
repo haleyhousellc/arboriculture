@@ -61,17 +61,37 @@ describe('avl-tree', () => {
             done();
         });
 
-        it(`should replace an existing node if inserting an existing key`, done => {
-            const bstAlt: IAvlTree<number, string> = AvlTree();
+        it(`should replace an existing node if inserting a duplicate into single-node tree`, done => {
+            const avlAlt: IAvlTree<number, string> = AvlTree();
 
-            bstAlt.insert(2, 'a string for key 2');
-            const s1 = bstAlt.toString();
+            avlAlt.insert(2, 'a string for key 2');
+            const s1 = avlAlt.toString();
 
-            bstAlt.insert(2, 'a new string for key 2');
-            const s2 = bstAlt.toString();
+            avlAlt.insert(2, 'a new string for key 2');
+            const s2 = avlAlt.toString();
 
             assert(s1 !== s2, `key 2 should have replaced value`);
-            expect(bstAlt.size()).to.equal(1);
+            expect(avlAlt.size()).to.equal(1);
+
+            done();
+        });
+
+        it(`should replace an existing node if inserting an existing key into a full tree`, done => {
+            const avlAlt: IAvlTree<number, string> = AvlTree();
+
+            for (let i = 0; i < 10; i++) avlAlt.insert(i, i.toFixed(5));
+            const s3 = avlAlt.toString();
+
+            const replacementKey   = 5;
+            const replacementValue = 100;
+            avlAlt.insert(replacementKey, replacementValue.toFixed(5));
+            const s4 = avlAlt.toString();
+
+            const controlString = [0, 1, 2, 3, 4, replacementValue, 6, 7, 8, 9].map(n => n.toFixed(5)).join(' | ');
+
+            assert(s3 !== s4, `before and after should not be equal`);
+            assert(s4 === controlString, `strings should be equal`);
+            expect(avlAlt.size()).to.equal(10);
 
             done();
         });
@@ -99,7 +119,7 @@ describe('avl-tree', () => {
     describe('#find', () => {
         it(`should return null if tree is empty`, done => {
             const avlLocal: IAvlTree<number, number> = AvlTree();
-            const value = avlLocal.find(0);
+            const value                              = avlLocal.find(0);
             assert(value === null, `value should be null since tree is empty`);
             expect(avlLocal.size()).to.equal(0);
             done();
@@ -159,7 +179,9 @@ describe('avl-tree', () => {
         const avlAlt = AvlTree<number, ITestType>();
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            avlAlt.clear();
             avlAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+
             const s = avlAlt.toString();
             expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
             expect(avlAlt.size()).to.equal(3);
@@ -167,8 +189,9 @@ describe('avl-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            avlAlt.insert(0, t0).insert(2, t2).insert(1, t1);
-            avlAlt.remove(0);
+            avlAlt.clear();
+            avlAlt.insert(0, t0).insert(2, t2).insert(1, t1).remove(0);
+
             const s = avlAlt.toString();
             expect(s.trim()).to.equal(`what up 2 | how goesit 3`);
             expect(avlAlt.size()).to.equal(2);
@@ -176,6 +199,9 @@ describe('avl-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            avlAlt.clear();
+            avlAlt.insert(2, t2).insert(1, t1);
+
             const value = avlAlt.find(1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 2`);
@@ -224,30 +250,36 @@ describe('avl-tree', () => {
             },
         };
 
-        const bstAlt = AvlTree<ITestType, ITestType>(testComparer);
+        const avlAlt = AvlTree<ITestType, ITestType>(testComparer);
 
         it(`should correctly insert an arbitrary type`, (done) => {
-            bstAlt.insert(t0).insert(t2).insert(t1);
-            const s = bstAlt.toString();
+            avlAlt.clear();
+            avlAlt.insert(t0).insert(t2).insert(t1);
+
+            const s = avlAlt.toString();
             expect(s).to.equal(`hi there 1 | how goesit 2 | what up 4`);
-            expect(bstAlt.size()).to.equal(3);
+            expect(avlAlt.size()).to.equal(3);
             done();
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            bstAlt.insert(t0).insert(t2).insert(t1);
-            bstAlt.remove(t0);
-            const s = bstAlt.toString();
+            avlAlt.clear();
+            avlAlt.insert(t0).insert(t2).insert(t1).remove(t0);
+
+            const s = avlAlt.toString();
             expect(s.trim()).to.equal(`how goesit 2 | what up 4`);
-            expect(bstAlt.size()).to.equal(2);
+            expect(avlAlt.size()).to.equal(2);
             done();
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
-            const value = bstAlt.find(t1);
+            avlAlt.clear();
+            avlAlt.insert(t0).insert(t1);
+
+            const value = avlAlt.find(t1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 4`);
-            expect(bstAlt.size()).to.equal(2);
+            expect(avlAlt.size()).to.equal(2);
             done();
         });
     });

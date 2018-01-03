@@ -50,7 +50,7 @@ describe('binary-search-tree', () => {
             done();
         });
 
-        it(`should replace an existing node if inserting an existing key`, done => {
+        it(`should replace an existing node if inserting a duplicate into single-node tree`, done => {
             const bstAlt: IBinarySearchTree<number, string> = BinarySearchTree();
 
             bstAlt.insert(2, 'a string for key 2');
@@ -61,6 +61,26 @@ describe('binary-search-tree', () => {
 
             assert(s1 !== s2, `key 2 should have replaced value`);
             expect(bstAlt.size()).to.equal(1);
+
+            done();
+        });
+
+        it(`should replace an existing node if inserting an existing key into a full tree`, done => {
+            const bstAlt: IBinarySearchTree<number, string> = BinarySearchTree();
+
+            for (let i = 0; i < 10; i++) bstAlt.insert(i, i.toFixed(5));
+            const s3 = bstAlt.toString();
+
+            const replacementKey   = 5;
+            const replacementValue = 100;
+            bstAlt.insert(replacementKey, replacementValue.toFixed(5));
+            const s4 = bstAlt.toString();
+
+            const controlString = [0, 1, 2, 3, 4, replacementValue, 6, 7, 8, 9].map(n => n.toFixed(5)).join(' | ');
+
+            assert(s3 !== s4, `before and after should not be equal`);
+            assert(s4 === controlString, `strings should be equal`);
+            expect(bstAlt.size()).to.equal(10);
 
             done();
         });
@@ -88,7 +108,7 @@ describe('binary-search-tree', () => {
     describe('#find', () => {
         it(`should return null if tree is empty`, done => {
             const bstLocal: IBinarySearchTree<number, number> = BinarySearchTree();
-            const value = bstLocal.find(0);
+            const value                                       = bstLocal.find(0);
             assert(value === null, `value should be null since tree is empty`);
             expect(bstLocal.size()).to.equal(0);
             done();
@@ -148,7 +168,9 @@ describe('binary-search-tree', () => {
         const bstAlt = BinarySearchTree<number, ITestType>();
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
             expect(bstAlt.size()).to.equal(3);
@@ -156,8 +178,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
-            bstAlt.remove(0);
+            bstAlt.clear();
+            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1).remove(0);
+
             const s = bstAlt.toString();
             expect(s.trim()).to.equal(`what up 2 | how goesit 3`);
             expect(bstAlt.size()).to.equal(2);
@@ -165,6 +188,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            bstAlt.clear();
+            bstAlt.insert(1, t1).insert(2, t2);
+
             const value = bstAlt.find(1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 2`);
@@ -216,7 +242,9 @@ describe('binary-search-tree', () => {
         const bstAlt = BinarySearchTree<ITestType, ITestType>(testComparer);
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(t0).insert(t2).insert(t1);
+
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | how goesit 2 | what up 4`);
             expect(bstAlt.size()).to.equal(3);
@@ -224,8 +252,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            bstAlt.insert(t0).insert(t2).insert(t1);
-            bstAlt.remove(t0);
+            bstAlt.clear();
+            bstAlt.insert(t0).insert(t2).insert(t1).remove(t0);
+
             const s = bstAlt.toString();
             expect(s.trim()).to.equal(`how goesit 2 | what up 4`);
             expect(bstAlt.size()).to.equal(2);
@@ -233,6 +262,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            bstAlt.clear();
+            bstAlt.insert(t0).insert(t1);
+
             const value = bstAlt.find(t1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 4`);

@@ -51,17 +51,37 @@ describe('red-black-tree', () => {
             done();
         });
 
-        it(`should replace an existing node if inserting an existing key`, done => {
-            const bstAlt: IRedBlackTree<number, string> = RedBlackTree();
+        it(`should replace an existing node if inserting a duplicate into single-node tree`, done => {
+            const rbtAlt: IRedBlackTree<number, string> = RedBlackTree();
 
-            bstAlt.insert(2, 'a string for key 2');
-            const s1 = bstAlt.toString();
+            rbtAlt.insert(2, 'a string for key 2');
+            const s1 = rbtAlt.toString();
 
-            bstAlt.insert(2, 'a new string for key 2');
-            const s2 = bstAlt.toString();
+            rbtAlt.insert(2, 'a new string for key 2');
+            const s2 = rbtAlt.toString();
 
             assert(s1 !== s2, `key 2 should have replaced value`);
-            expect(bstAlt.size()).to.equal(1);
+            expect(rbtAlt.size()).to.equal(1);
+
+            done();
+        });
+
+        it(`should replace an existing node if inserting an existing key into a full tree`, done => {
+            const rbtAlt: IRedBlackTree<number, string> = RedBlackTree();
+
+            for (let i = 0; i < 10; i++) rbtAlt.insert(i, i.toFixed(5));
+            const s3 = rbtAlt.toString();
+
+            const replacementKey   = 5;
+            const replacementValue = 100;
+            rbtAlt.insert(replacementKey, replacementValue.toFixed(5));
+            const s4 = rbtAlt.toString();
+
+            const controlString = [0, 1, 2, 3, 4, replacementValue, 6, 7, 8, 9].map(n => n.toFixed(5)).join(' | ');
+
+            assert(s3 !== s4, `before and after should not be equal`);
+            assert(s4 === controlString, `strings should be equal`);
+            expect(rbtAlt.size()).to.equal(10);
 
             done();
         });
@@ -89,7 +109,7 @@ describe('red-black-tree', () => {
     describe('#find', () => {
         it(`should return null if tree is empty`, done => {
             const rbtLocal: IRedBlackTree<number, number> = RedBlackTree();
-            const value = rbtLocal.find(0);
+            const value                                   = rbtLocal.find(0);
             assert(value === null, `value should be null since tree is empty`);
             expect(rbtLocal.size()).to.equal(0);
             done();
@@ -151,6 +171,7 @@ describe('red-black-tree', () => {
         it(`should correctly insert an arbitrary type`, (done) => {
             bstAlt.clear();
             bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
             expect(bstAlt.size()).to.equal(3);
@@ -159,8 +180,8 @@ describe('red-black-tree', () => {
 
         it(`should correctly delete an arbitrary type`, (done) => {
             bstAlt.clear();
-            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
-            bstAlt.remove(0);
+            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1).remove(0);
+
             const s = bstAlt.toString();
             expect(s.trim()).to.equal(`what up 2 | how goesit 3`);
             expect(bstAlt.size()).to.equal(2);
@@ -170,6 +191,7 @@ describe('red-black-tree', () => {
         it(`should correctly find an arbitrary type`, (done) => {
             bstAlt.clear();
             bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+
             const value = bstAlt.find(1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 2`);
@@ -218,10 +240,12 @@ describe('red-black-tree', () => {
             },
         };
 
-        const bstAlt = RedBlackTree<ITestType, ITestType>(testComparer);
+        const bstAlt: IRedBlackTree<ITestType, ITestType> = RedBlackTree(testComparer);
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(t0).insert(t2).insert(t1);
+
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | how goesit 2 | what up 4`);
             expect(bstAlt.size()).to.equal(3);
@@ -229,8 +253,9 @@ describe('red-black-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            bstAlt.insert(t0).insert(t2).insert(t1);
-            bstAlt.remove(t0);
+            bstAlt.clear();
+            bstAlt.insert(t0).insert(t2).insert(t1).remove(t0);
+
             const s = bstAlt.toString();
             expect(s.trim()).to.equal(`how goesit 2 | what up 4`);
             expect(bstAlt.size()).to.equal(2);
@@ -238,6 +263,8 @@ describe('red-black-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            bstAlt.clear();
+            bstAlt.insert(t2).insert(t1);
             const value = bstAlt.find(t1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 4`);
