@@ -51,17 +51,37 @@ describe('red-black-tree', () => {
             done();
         });
 
-        it(`should replace an existing node if inserting an existing key`, done => {
-            const bstAlt: IRedBlackTree<number, string> = RedBlackTree();
+        it(`should replace an existing node if inserting a duplicate into single-node tree`, done => {
+            const rbtAlt: IRedBlackTree<number, string> = RedBlackTree();
 
-            bstAlt.insert(2, 'a string for key 2');
-            const s1 = bstAlt.toString();
+            rbtAlt.insert(2, 'a string for key 2');
+            const s1 = rbtAlt.toString();
 
-            bstAlt.insert(2, 'a new string for key 2');
-            const s2 = bstAlt.toString();
+            rbtAlt.insert(2, 'a new string for key 2');
+            const s2 = rbtAlt.toString();
 
             assert(s1 !== s2, `key 2 should have replaced value`);
-            expect(bstAlt.size()).to.equal(1);
+            expect(rbtAlt.size()).to.equal(1);
+
+            done();
+        });
+
+        it(`should replace an existing node if inserting an existing key into a full tree`, done => {
+            const rbtAlt: IRedBlackTree<number, string> = RedBlackTree();
+
+            for (let i = 0; i < 10; i++) rbtAlt.insert(i, i.toFixed(5));
+            const s3 = rbtAlt.toString();
+
+            const replacementKey   = 5;
+            const replacementValue = 100;
+            rbtAlt.insert(replacementKey, replacementValue.toFixed(5));
+            const s4 = rbtAlt.toString();
+
+            const controlString = [0, 1, 2, 3, 4, replacementValue, 6, 7, 8, 9].map(n => n.toFixed(5)).join(' | ');
+
+            assert(s3 !== s4, `before and after should not be equal`);
+            assert(s4 === controlString, `strings should be equal`);
+            expect(rbtAlt.size()).to.equal(10);
 
             done();
         });
@@ -89,7 +109,7 @@ describe('red-black-tree', () => {
     describe('#find', () => {
         it(`should return null if tree is empty`, done => {
             const rbtLocal: IRedBlackTree<number, number> = RedBlackTree();
-            const value = rbtLocal.find(0);
+            const value                                   = rbtLocal.find(0);
             assert(value === null, `value should be null since tree is empty`);
             expect(rbtLocal.size()).to.equal(0);
             done();

@@ -15,11 +15,11 @@
   "compileOnSave": true,
   "exclude": [
     "src/**/*.spec.ts",
-    "node_modules",
-    "driver.ts"
+    "node_modules"
   ],
   "include": [
     "index.ts",
+    "driver.ts",
     "src/**/*.ts",
     "node_modules/@types"
   ]

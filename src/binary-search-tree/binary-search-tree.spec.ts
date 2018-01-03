@@ -50,7 +50,7 @@ describe('binary-search-tree', () => {
             done();
         });
 
-        it(`should replace an existing node if inserting an existing key`, done => {
+        it(`should replace an existing node if inserting a duplicate into single-node tree`, done => {
             const bstAlt: IBinarySearchTree<number, string> = BinarySearchTree();
 
             bstAlt.insert(2, 'a string for key 2');
@@ -61,6 +61,26 @@ describe('binary-search-tree', () => {
 
             assert(s1 !== s2, `key 2 should have replaced value`);
             expect(bstAlt.size()).to.equal(1);
+
+            done();
+        });
+
+        it(`should replace an existing node if inserting an existing key into a full tree`, done => {
+            const bstAlt: IBinarySearchTree<number, string> = BinarySearchTree();
+
+            for (let i = 0; i < 10; i++) bstAlt.insert(i, i.toFixed(5));
+            const s3 = bstAlt.toString();
+
+            const replacementKey = 5;
+            const replacementValue = 100;
+            bstAlt.insert(replacementKey, replacementValue.toFixed(5));
+            const s4 = bstAlt.toString();
+
+            const controlString = [0, 1, 2, 3, 4, replacementValue, 6, 7, 8, 9].map(n => n.toFixed(5)).join(' | ');
+
+            assert(s3 !== s4, `before and after should not be equal`);
+            assert(s4 === controlString, `strings should be equal`);
+            expect(bstAlt.size()).to.equal(10);
 
             done();
         });
@@ -88,7 +108,7 @@ describe('binary-search-tree', () => {
     describe('#find', () => {
         it(`should return null if tree is empty`, done => {
             const bstLocal: IBinarySearchTree<number, number> = BinarySearchTree();
-            const value = bstLocal.find(0);
+            const value                                       = bstLocal.find(0);
             assert(value === null, `value should be null since tree is empty`);
             expect(bstLocal.size()).to.equal(0);
             done();

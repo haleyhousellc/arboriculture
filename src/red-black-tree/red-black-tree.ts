@@ -134,50 +134,57 @@ export const clearRbt = <K, V>(tree: IRedBlackTree<K, V>): void => {
  * The insert procedure differs slightly from the base insert.
  */
 export const insertNodeIntoRbt = <K, V>(tree: IRedBlackTree<K, V>,
-                                        newNode: IRedBlackTreeNode<K, V>,
+                                        candidate: IRedBlackTreeNode<K, V>,
                                         comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
 
-    let parent: IRedBlackTreeNode<K, V>  = tree.sentinel;
     let current: IRedBlackTreeNode<K, V> = tree.root;
+
+    // Initialize the candidate.
+    candidate.parent = tree.sentinel;
+    candidate.left   = tree.sentinel;
+    candidate.right  = tree.sentinel;
+    candidate.color  = RedBlackTreeNodeColor.RED;
+
+    let isNew: boolean = true;
 
     // Iterate over the tree to find the new node's parent.
     while (current !== tree.sentinel) {
-        parent = current;
+        candidate.parent = current;
 
         // Don't allow duplicates, so default to replacing the node entirely.  (I assume the user knows what he/she/it
         // is doing.)
         //
         // Just reset the parent here and break.
-        if (comparer(newNode.key, current.key) === 0) {
-            parent = current.parent;
+        if (comparer(candidate.key, current.key) === 0) {
+
+            // Copy information from the stale node.
+            candidate.parent     = current.parent;
+            candidate.left       = current.left;
+            candidate.right      = current.right;
+            candidate.color      = current.color;
+            candidate.isSentinel = current.isSentinel;
+
+            isNew = false;
 
             break;
         }
 
         // Otherwise traverse the appropriate child.
-        if (comparer(newNode.key, current.key) < 0) current = current.left;
+        if (comparer(candidate.key, current.key) < 0) current = current.left;
         else current = current.right;
     }
 
-    // Assign the appropriate parent to the new node.
-    newNode.parent = parent;
-
     // If the parent is still the sentinel, the tree was empty and the new node becomes the new root.
-    if (parent === tree.sentinel) tree.root = newNode;
+    if (candidate.parent === tree.sentinel) tree.root = candidate;
 
     // Otherwise, determine whether the new node should be the left or right child of its parent and link it.
-    else if (comparer(newNode.key, parent.key) < 0) parent.left = newNode;
-    else parent.right = newNode;
+    else if (comparer(candidate.key, candidate.parent.key) < 0) candidate.parent.left = candidate;
+    else candidate.parent.right = candidate;
 
-    newNode.left  = tree.sentinel;
-    newNode.right = tree.sentinel;
-    newNode.color = RedBlackTreeNodeColor.RED;
-
-    // Fix any issues that may have arisen with the addition of another red node.
-    fixInsertionIntoRbt(tree, newNode);
+    if (isNew) fixInsertionIntoRbt(tree, candidate);
 
     // Return the newly inserted node.
-    return newNode;
+    return candidate;
 };
 
 /**

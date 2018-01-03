@@ -61,17 +61,37 @@ describe('avl-tree', () => {
             done();
         });
 
-        it(`should replace an existing node if inserting an existing key`, done => {
-            const bstAlt: IAvlTree<number, string> = AvlTree();
+        it(`should replace an existing node if inserting a duplicate into single-node tree`, done => {
+            const avlAlt: IAvlTree<number, string> = AvlTree();
 
-            bstAlt.insert(2, 'a string for key 2');
-            const s1 = bstAlt.toString();
+            avlAlt.insert(2, 'a string for key 2');
+            const s1 = avlAlt.toString();
 
-            bstAlt.insert(2, 'a new string for key 2');
-            const s2 = bstAlt.toString();
+            avlAlt.insert(2, 'a new string for key 2');
+            const s2 = avlAlt.toString();
 
             assert(s1 !== s2, `key 2 should have replaced value`);
-            expect(bstAlt.size()).to.equal(1);
+            expect(avlAlt.size()).to.equal(1);
+
+            done();
+        });
+
+        it(`should replace an existing node if inserting an existing key into a full tree`, done => {
+            const avlAlt: IAvlTree<number, string> = AvlTree();
+
+            for (let i = 0; i < 10; i++) avlAlt.insert(i, i.toFixed(5));
+            const s3 = avlAlt.toString();
+
+            const replacementKey = 5;
+            const replacementValue = 100;
+            avlAlt.insert(replacementKey, replacementValue.toFixed(5));
+            const s4 = avlAlt.toString();
+
+            const controlString = [0, 1, 2, 3, 4, replacementValue, 6, 7, 8, 9].map(n => n.toFixed(5)).join(' | ');
+
+            assert(s3 !== s4, `before and after should not be equal`);
+            assert(s4 === controlString, `strings should be equal`);
+            expect(avlAlt.size()).to.equal(10);
 
             done();
         });

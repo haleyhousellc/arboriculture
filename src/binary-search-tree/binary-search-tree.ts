@@ -117,43 +117,44 @@ export const clearBst = <K, V>(tree: IBinarySearchTree<K, V>): void => tree.root
  * memory-related performance problems as the tree grows (i.e. hitting stack limits).
  */
 export const insertNodeIntoBst = <K, V>(tree: IBinarySearchTree<K, V>,
-                                        newNode: IBinarySearchTreeNode<K, V>,
+                                        candidate: IBinarySearchTreeNode<K, V>,
                                         comparer: IComparer<K> = defaultComparer): IBinarySearchTreeNode<K, V> => {
 
-    let parent: IBinarySearchTreeNode<K, V>  = null;
     let current: IBinarySearchTreeNode<K, V> = tree.root;
+
+    // Initialize the candidate.
+    candidate.parent = null;
 
     // Iterate over the tree to find the new node's parent.
     while (current) {
-        parent = current;
+        candidate.parent = current;
 
         // Don't allow duplicates, so default to replacing the node entirely.  (I assume the user knows what he/she/it
         // is doing.)
-        //
-        // Just reset the parent here and break.
-        if (comparer(newNode.key, current.key) === 0) {
-            parent = current.parent;
+        if (comparer(candidate.key, current.key) === 0) {
+
+            // Copy information from the stale node.
+            candidate.parent = current.parent;
+            candidate.left   = current.left;
+            candidate.right  = current.right;
 
             break;
         }
 
         // Otherwise traverse the appropriate child.
-        else if (comparer(newNode.key, current.key) < 0) current = current.left;
+        else if (comparer(candidate.key, current.key) < 0) current = current.left;
         else current = current.right;
     }
 
-    // Assign the appropriate parent to the new node.
-    newNode.parent = parent;
-
     // If the parent is null, the tree was empty and the new node becomes the new root.
-    if (!parent) tree.root = newNode;
+    if (!candidate.parent) tree.root = candidate;
 
     // Otherwise, determine whether the new node is the left or right child of it's parent and link it.
-    else if (comparer(newNode.key, parent.key) < 0) parent.left = newNode;
-    else parent.right = newNode;
+    else if (comparer(candidate.key, candidate.parent.key) < 0) candidate.parent.left = candidate;
+    else candidate.parent.right = candidate;
 
     // Return the newly inserted node.
-    return newNode;
+    return candidate;
 };
 
 /**
