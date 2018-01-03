@@ -71,7 +71,7 @@ describe('binary-search-tree', () => {
             for (let i = 0; i < 10; i++) bstAlt.insert(i, i.toFixed(5));
             const s3 = bstAlt.toString();
 
-            const replacementKey = 5;
+            const replacementKey   = 5;
             const replacementValue = 100;
             bstAlt.insert(replacementKey, replacementValue.toFixed(5));
             const s4 = bstAlt.toString();
@@ -168,7 +168,9 @@ describe('binary-search-tree', () => {
         const bstAlt = BinarySearchTree<number, ITestType>();
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
+
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | what up 2 | how goesit 3`);
             expect(bstAlt.size()).to.equal(3);
@@ -176,8 +178,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1);
-            bstAlt.remove(0);
+            bstAlt.clear();
+            bstAlt.insert(0, t0).insert(2, t2).insert(1, t1).remove(0);
+
             const s = bstAlt.toString();
             expect(s.trim()).to.equal(`what up 2 | how goesit 3`);
             expect(bstAlt.size()).to.equal(2);
@@ -185,6 +188,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            bstAlt.clear();
+            bstAlt.insert(1, t1).insert(2, t2);
+
             const value = bstAlt.find(1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 2`);
@@ -236,7 +242,9 @@ describe('binary-search-tree', () => {
         const bstAlt = BinarySearchTree<ITestType, ITestType>(testComparer);
 
         it(`should correctly insert an arbitrary type`, (done) => {
+            bstAlt.clear();
             bstAlt.insert(t0).insert(t2).insert(t1);
+
             const s = bstAlt.toString();
             expect(s).to.equal(`hi there 1 | how goesit 2 | what up 4`);
             expect(bstAlt.size()).to.equal(3);
@@ -244,8 +252,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly delete an arbitrary type`, (done) => {
-            bstAlt.insert(t0).insert(t2).insert(t1);
-            bstAlt.remove(t0);
+            bstAlt.clear();
+            bstAlt.insert(t0).insert(t2).insert(t1).remove(t0);
+
             const s = bstAlt.toString();
             expect(s.trim()).to.equal(`how goesit 2 | what up 4`);
             expect(bstAlt.size()).to.equal(2);
@@ -253,6 +262,9 @@ describe('binary-search-tree', () => {
         });
 
         it(`should correctly find an arbitrary type`, (done) => {
+            bstAlt.clear();
+            bstAlt.insert(t0).insert(t1);
+
             const value = bstAlt.find(t1);
             const s     = value.toString();
             expect(s.trim()).to.equal(`what up 4`);

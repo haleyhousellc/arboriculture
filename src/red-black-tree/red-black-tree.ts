@@ -181,6 +181,7 @@ export const insertNodeIntoRbt = <K, V>(tree: IRedBlackTree<K, V>,
     else if (comparer(candidate.key, candidate.parent.key) < 0) candidate.parent.left = candidate;
     else candidate.parent.right = candidate;
 
+    // This allows us to skip the fix when replacing an existing node.
     if (isNew) fixInsertionIntoRbt(tree, candidate);
 
     // Return the newly inserted node.
