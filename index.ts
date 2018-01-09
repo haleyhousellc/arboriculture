@@ -6,3 +6,4 @@ export {
     BinarySearchTreeNode,
 } from './src/binary-search-tree/binary-search-tree';
 export { IRedBlackTree, RedBlackTree, IRedBlackTreeNode, RedBlackTreeNode } from './src/red-black-tree/red-black-tree';
+export { IAvlTree, AvlTree, IAvlTreeNode, AvlTreeNode } from './src/avl-tree/avl-tree';

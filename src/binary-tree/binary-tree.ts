@@ -36,6 +36,24 @@ export const BinaryTreeNode = <K, V>(k: K, v?: V): IBinaryTreeNode<K, V> => {
     };
 };
 
+export const nodeIsLeaf = <K, V>(node: IBinaryTreeNode<K, V>): boolean => {
+    if (!node) return false;
+
+    return !node.left && !node.right;
+};
+
+export const nodeHasSingleChild = <K, V>(node: IBinaryTreeNode<K, V>): boolean => {
+    if (!node || nodeIsLeaf(node)) return false;
+
+    return !node.left || !node.right;
+};
+
+export const nodeHasTwoChildren = <K, V>(node: IBinaryTreeNode<K, V>): boolean => {
+    if (!node) return false;
+
+    return node.left && node.right;
+};
+
 /**
  * Interface for writing custom compare functions.
  */
@@ -55,7 +73,7 @@ export enum TraversalOrder {
     PREORDER,
     INORDER,
     POSTORDER,
-//    HIEGHTORDER,
+//    HEIGHTORDER,
 }
 
 export interface IBinaryTree<K, V> {
@@ -83,7 +101,8 @@ export interface IBinaryTree<K, V> {
 /**
  * Start supporting recursive tree functions
  */
-export const traverseTree = <K, V>(root: IBinaryTreeNode<K, V>, order: TraversalOrder = TraversalOrder.INORDER): V[] => {
+export const traverseTree = <K, V>(root: IBinaryTreeNode<K, V>,
+                                   order: TraversalOrder = TraversalOrder.INORDER): V[] => {
     switch (order) {
         case TraversalOrder.PREORDER:
             return traverseTreePreOrder(root);
@@ -123,4 +142,28 @@ export const traverseTreePostOrder = <K, V>(root: IBinaryTreeNode<K, V>): V[] =>
     const right = traverseTreePostOrder(root.right);
 
     return [].concat(left, right, self);
+};
+
+export const getTreeHeight = <K, V>(root: IBinaryTreeNode<K, V>): number => {
+    if (!root) return 0;
+
+    const leftHeight  = getTreeHeight(root.left);
+    const rightHeight = getTreeHeight(root.right);
+
+    return Math.max(leftHeight, rightHeight) + 1;
+};
+
+export const cloneNode = <K, V>(node: IBinaryTreeNode<K, V>): IBinaryTreeNode<K, V> => {
+    return BinaryTreeNode(node.key, node.value);
+};
+
+export const cloneTree = <K, V>(root: IBinaryTreeNode<K, V>): IBinaryTreeNode<K, V> => {
+    if (!root) return null;
+
+    const node = cloneNode(root);
+
+    node.left  = cloneTree(root.left);
+    node.right = cloneTree(root.right);
+
+    return node;
 };

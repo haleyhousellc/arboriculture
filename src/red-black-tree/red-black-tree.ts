@@ -1,4 +1,4 @@
-import { clearBst, BinarySearchTreeNode, IBinarySearchTreeNode, } from '../binary-search-tree/binary-search-tree';
+import { BinarySearchTreeNode, IBinarySearchTreeNode, } from '../binary-search-tree/binary-search-tree';
 import { defaultComparer, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
 
 export enum RedBlackTreeNodeColor {
@@ -46,6 +46,8 @@ export interface IRedBlackTree<K, V = K> {
 
     size(): number;
 
+    height(): number;
+
     clear(): void;
 
     find(key: K): V;
@@ -61,6 +63,8 @@ export interface IRedBlackTree<K, V = K> {
     traverse(order?: TraversalOrder): V[];
 
     toString(): string;
+
+    clone(): IRedBlackTree<K, V>;
 }
 
 /**
@@ -77,35 +81,69 @@ export const RedBlackTree = <K, V>(comparer: IComparer<K> = defaultComparer): IR
 
         size(): number { return this.traverse().length; },
 
+        height(): number { return getRbtHeight(this.root, this.sentinel); },
+
         clear(): void { return clearRbt(this); },
 
         find(key: K): V {
-            const node: IRedBlackTreeNode<K, V> = findNodeInRbt(this, key, comparer);
+            const node: IRedBlackTreeNode<K, V> = findFromRbtNode(this.root, key, this.sentinel, comparer);
 
             return (node && node !== this.sentinel) ? node.value : null;
         },
 
         min(): V {
-            const node: IRedBlackTreeNode<K, V> = getMinNodeInRbt(this);
+            const node: IRedBlackTreeNode<K, V> = minFromRbtNode(this.root, this.sentinel);
 
             return node ? node.value : null;
         },
 
         max(): V {
-            const node: IRedBlackTreeNode<K, V> = getMaxNodeInRbt(this);
+            const node: IRedBlackTreeNode<K, V> = maxFromRbtNode(this.root, this.sentinel);
 
             return node ? node.value : null;
         },
 
         insert(key: K, value?: V): IRedBlackTree<K, V> {
-            const newNode = RedBlackTreeNode(key, value);
-            insertNodeIntoRbt(this, newNode, comparer);
+            const freshNode = RedBlackTreeNode(key, value);
+            initializeNodeRelationships(freshNode, this.sentinel);
+
+            if (this.root === this.sentinel) {
+                this.root = freshNode;
+            } else {
+                // Insert the node.
+                const insertedNode = insertAtRbtNode(this.root,
+                                                     freshNode,
+                                                     this.sentinel,
+                                                     comparer) as IRedBlackTreeNode<K, V>;
+
+                // Fix the insertion.
+                fixInsertionIntoRbt(this, insertedNode);
+            }
 
             return this;
         },
 
         remove(key: K): IRedBlackTree<K, V> {
-            removeNodeFromRbt(this, key, comparer);
+
+            // Find the node first, and return if it isn't found.
+            const candidate: IRedBlackTreeNode<K, V> = findFromRbtNode(this.root, key, this.sentinel, comparer);
+
+            if (candidate !== sentinel) {
+
+                // Find the successor to the candidate up for delete.
+                const successor: IRedBlackTreeNode<K, V> = minFromRbtNode(candidate.right, this.sentinel);
+                const hasSuccessor                       = successor !== this.sentinel && successor !== candidate.right;
+
+                const replacement = removeAtRbtNode(candidate, this.sentinel) as IRedBlackTreeNode<K, V>;
+
+                // Get the starting point at which to begin the fix.
+                const targetToFix: IRedBlackTreeNode<K, V> = hasSuccessor ? successor.parent : replacement;
+
+                // Now, fix any imbalances that may have arisen.
+                fixDeletionFromRbt(this, targetToFix);
+
+                if (candidate.parent === sentinel) this.root = replacement;
+            }
 
             return this;
         },
@@ -119,120 +157,163 @@ export const RedBlackTree = <K, V>(comparer: IComparer<K> = defaultComparer): IR
                        .join(' | ')
                        .trim();
         },
+
+        clone(): IRedBlackTree<K, V> {
+            const newTree: IRedBlackTree<K, V> = RedBlackTree();
+            newTree.root                       = cloneRbtSubtree(this.root, this.sentinel);
+
+            return newTree;
+        },
     };
 };
 
 /**
  * This method clears the tree.
  */
-export const clearRbt = <K, V>(tree: IRedBlackTree<K, V>): void => {
-    clearBst(tree);
-    tree.root = tree.sentinel;
+const clearRbt = <K, V>(tree: IRedBlackTree<K, V>): void => { tree.root = tree.sentinel; };
+
+const findFromRbtNode = <K, V>(root: IRedBlackTreeNode<K, V>,
+                               key: K,
+                               sentinel: IRedBlackTreeNode<K, V>,
+                               comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
+    if (root === sentinel) return sentinel;
+
+    if (comparer(root.key, key) === 0) return root;
+
+    // Tail call
+    return comparer(root.key, key) < 0
+        ? findFromRbtNode(root.right, key, sentinel, comparer)
+        : findFromRbtNode(root.left, key, sentinel, comparer);
 };
 
-/**
- * The insert procedure differs slightly from the base insert.
- */
-export const insertNodeIntoRbt = <K, V>(tree: IRedBlackTree<K, V>,
-                                        candidate: IRedBlackTreeNode<K, V>,
-                                        comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
+const maxFromRbtNode = <K, V>(root: IRedBlackTreeNode<K, V>,
+                              sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    if (root === sentinel || root.right === sentinel) return root;
 
-    let current: IRedBlackTreeNode<K, V> = tree.root;
+    // Tail call
+    return maxFromRbtNode(root.right, sentinel);
+};
 
-    // Initialize the candidate.
-    candidate.parent = tree.sentinel;
-    candidate.left   = tree.sentinel;
-    candidate.right  = tree.sentinel;
-    candidate.color  = RedBlackTreeNodeColor.RED;
+const minFromRbtNode = <K, V>(root: IRedBlackTreeNode<K, V>,
+                              sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    if (root === sentinel || root.left === sentinel) return root;
 
-    let isNew: boolean = true;
+    // Tail call
+    return minFromRbtNode(root.left, sentinel);
+};
 
-    // Iterate over the tree to find the new node's parent.
-    while (current !== tree.sentinel) {
-        candidate.parent = current;
+const insertAtRbtNode = <K, V>(current: IRedBlackTreeNode<K, V>,
+                               freshNode: IRedBlackTreeNode<K, V>,
+                               sentinel: IRedBlackTreeNode<K, V>,
+                               comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
 
-        // Don't allow duplicates, so default to replacing the node entirely.  (I assume the user knows what he/she/it
-        // is doing.)
-        //
-        // Just reset the parent here and break.
-        if (comparer(candidate.key, current.key) === 0) {
+    // Insert
+    if (current === sentinel) return freshNode;
 
-            // Copy information from the stale node.
-            candidate.parent     = current.parent;
-            candidate.left       = current.left;
-            candidate.right      = current.right;
-            candidate.color      = current.color;
-            candidate.isSentinel = current.isSentinel;
+    // Update and return
+    if (comparer(current.key, freshNode.key) === 0) {
+        current.value = freshNode.value;
 
-            isNew = false;
-
-            break;
-        }
-
-        // Otherwise traverse the appropriate child.
-        if (comparer(candidate.key, current.key) < 0) current = current.left;
-        else current = current.right;
+        return current;
     }
 
-    // If the parent is still the sentinel, the tree was empty and the new node becomes the new root.
-    if (candidate.parent === tree.sentinel) tree.root = candidate;
+    // Otherwise insert into the correct subtree.
+    if (comparer(current.key, freshNode.key) < 0) {
+        if (current.right === sentinel) {
+            current.right    = freshNode;
+            freshNode.parent = current;
 
-    // Otherwise, determine whether the new node should be the left or right child of its parent and link it.
-    else if (comparer(candidate.key, candidate.parent.key) < 0) candidate.parent.left = candidate;
-    else candidate.parent.right = candidate;
+            return freshNode;
+        }
 
-    // This allows us to skip the fix when replacing an existing node.
-    if (isNew) fixInsertionIntoRbt(tree, candidate);
+        // Tail call
+        return insertAtRbtNode(current.right, freshNode, sentinel, comparer);
+    } else {
+        if (current.left === sentinel) {
+            current.left     = freshNode;
+            freshNode.parent = current;
 
-    // Return the newly inserted node.
-    return candidate;
+            return freshNode;
+        }
+
+        // Tail call
+        return insertAtRbtNode(current.left, freshNode, sentinel, comparer);
+    }
 };
 
-/**
- * This is essentially a copy of the base delete procedure.  However, the assignment of newSuccessor.parent to
- * replacement.parent is unconditional.  Also new is the comparison to the sentinel node, rather than a null-check.
- */
-export const removeNodeFromRbt = <K, V>(tree: IRedBlackTree<K, V>,
-                                        key: K,
-                                        comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
+export const removeAtRbtNode = <K, V>(candidate: IRedBlackTreeNode<K, V>,
+                                      sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    if (candidate === sentinel) return sentinel;
 
-    const candidate: IRedBlackTreeNode<K, V> = findNodeInRbt(tree, key, comparer);
+    let replacement: IRedBlackTreeNode<K, V> = sentinel;
 
-    // If the candidate is null, it was not present in the tree.
-    if (candidate === tree.sentinel) return null;
+    if (nodeIsLeaf(candidate, sentinel)) replacement = handleLeafNode(candidate, sentinel);
+    else if (candidate.right === sentinel) replacement = handleNodeWithLeftChildOnly(candidate, sentinel);
+    else if (candidate.left === sentinel) replacement = handleNodeWithRightChildOnly(candidate, sentinel);
+    else if (nodeHasTwoChildren(candidate, sentinel)) replacement = handleSaturatedNode(candidate, sentinel);
 
-    // Declare a replacement for the deleted node.  This begins as it's successor, but is spliced out of it's
-    // original location and is substituted back into the tree at the location of the deleted node.
-    let replacement: IRedBlackTreeNode<K, V> = null;
+    return replacement;
+};
 
-    // If the node to be deleted has less than 2 children (i.e. 0 or 1), designate it as it's own replacement
-    if (candidate.left === tree.sentinel || candidate.right === tree.sentinel) replacement = candidate;
+const handleLeafNode = <K, V>(candidate: IRedBlackTreeNode<K, V>,
+                              sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    const replacement: IRedBlackTreeNode<K, V> = sentinel;
 
-    // Otherwise set the replacement as the candidate's immediate successor.
-    else replacement = findNodeSuccessorInRbt(tree, candidate);
+    if (candidate.parent !== sentinel) {
+        candidate.parent.left === candidate
+            ? candidate.parent.left = sentinel
+            : candidate.parent.right = sentinel;
+    }
 
-    // Declare a new successor.  This is either the replacement's only child, or null.  After the replacement takes
-    // over in the old position of the deleted node, this node represents the replacement's immediate successor.
-    let newSuccessor: IRedBlackTreeNode<K, V> = null;
+    return replacement;
+};
 
-    if (replacement.left !== tree.sentinel) newSuccessor = replacement.left;
-    else newSuccessor = replacement.right;
+const handleNodeWithRightChildOnly = <K, V>(candidate: IRedBlackTreeNode<K, V>,
+                                            sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    const replacement: IRedBlackTreeNode<K, V> = candidate.right;
 
-    // This is a change from the standard delete procedure.
-    newSuccessor.parent = replacement.parent;
+    replacement.parent = candidate.parent;
 
-    if (replacement.parent === tree.sentinel) tree.root = newSuccessor;
-    else if (replacement === replacement.parent.left) replacement.parent.left = newSuccessor;
-    else replacement.parent.right = newSuccessor;
+    if (candidate.parent !== sentinel) {
+        candidate.parent.left === candidate
+            ? candidate.parent.left = replacement
+            : candidate.parent.right = replacement;
+    }
 
-    if (replacement !== candidate) candidate.value = replacement.value;
+    return replacement;
+};
 
-    // If the node that replaced the deleted node in the tree is black, fix any violations that exist.
-    if (replacement.color === RedBlackTreeNodeColor.BLACK) fixDeletionFromSubtree(tree, newSuccessor);
+const handleNodeWithLeftChildOnly = <K, V>(candidate: IRedBlackTreeNode<K, V>,
+                                           sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    const replacement: IRedBlackTreeNode<K, V> = candidate.left;
 
-    // Return all parties involved in node removal: the candidate (deleted node), the candidate's replacement in the
-    // tree, and the new successor (successor to the replacement).
-    return newSuccessor;
+    replacement.parent = candidate.parent;
+
+    if (candidate.parent !== sentinel) {
+        candidate.parent.left === candidate
+            ? candidate.parent.left = replacement
+            : candidate.parent.right = replacement;
+    }
+
+    return replacement;
+};
+
+const handleSaturatedNode = <K, V>(candidate: IRedBlackTreeNode<K, V>,
+                                   sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    const replacement: IRedBlackTreeNode<K, V> = minFromRbtNode(candidate.right, sentinel);
+
+    // Replace the candidate key/value with the replacement and delete the original replacement.
+    candidate.key   = replacement.key;
+    candidate.value = replacement.value;
+
+    if (nodeIsLeaf(replacement, sentinel)) {
+        handleLeafNode(replacement, sentinel);
+    }
+    else { // the only other option for a min node is to have a right child
+        handleNodeWithRightChildOnly(replacement, sentinel);
+    }
+
+    return candidate;
 };
 
 /**
@@ -240,9 +321,9 @@ export const removeNodeFromRbt = <K, V>(tree: IRedBlackTree<K, V>,
  */
 const fixInsertionIntoRbt = <K, V>(tree: IRedBlackTree<K, V>, newNode: IRedBlackTreeNode<K, V>): void => {
     let current: IRedBlackTreeNode<K, V> = newNode;
-    let uncle: IRedBlackTreeNode<K, V>   = null;
+    let uncle: IRedBlackTreeNode<K, V>   = tree.sentinel;
 
-// The candidate begins life red. If the candidate's parent isn't red, no violation should have occurred.
+    // The candidate begins life red. If the candidate's parent isn't red, no violation should have occurred.
     while (current.parent.color === RedBlackTreeNodeColor.RED) {
 
         // The parent is the left child of the grandparent...
@@ -338,10 +419,10 @@ const fixInsertionIntoRbt = <K, V>(tree: IRedBlackTree<K, V>, newNode: IRedBlack
 /**
  * This function adjusts node colors and performs any rotations needed after deleting a node.
  */
-const fixDeletionFromSubtree = <K, V>(tree: IRedBlackTree<K, V>, candidate: IRedBlackTreeNode<K, V>): void => {
+const fixDeletionFromRbt = <K, V>(tree: IRedBlackTree<K, V>, candidate: IRedBlackTreeNode<K, V>): void => {
 
     while (candidate !== tree.root && candidate.color === RedBlackTreeNodeColor.BLACK) {
-        let sibling: IRedBlackTreeNode<K, V> = null;
+        let sibling: IRedBlackTreeNode<K, V> = tree.sentinel;
 
         // The deleted node is a left child...
         if (candidate === candidate.parent.left) {
@@ -493,99 +574,19 @@ const rotateRbtSubtreeRight = <K, V>(tree: IRedBlackTree<K, V>, candidate: IRedB
     candidate.parent = replacement;
 };
 
-/**
- * Search the tree for a given key - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const findNodeInRbt = <K, V>(tree: IRedBlackTree<K, V>,
-                                    targetKey: K,
-                                    comparer: IComparer<K> = defaultComparer): IRedBlackTreeNode<K, V> => {
-
-    // Just make sure the target is legitimate.
-    if (targetKey == null) return null;
-
-    // Get a local variable.
-    let currentNode = tree.root;
-
-    // Loop until the current node is null (i.e. target key is not found), or the target key is found (comparer
-    // returns zero).
-    while (currentNode !== tree.sentinel && comparer(targetKey, currentNode.key) !== 0) {
-
-        // If comparer returns less than zero, target key is less than current node key - traverse left;
-        if (comparer(targetKey, currentNode.key) < 0) currentNode = currentNode.left;
-
-        // If comparer returns greater than zero, target key is greater than current node key - traverse right.
-        else currentNode = currentNode.right;
-    }
-
-    // Return the current node (an actual node if the target is found, sentinel if not).
-    return currentNode;
-};
-
-/**
- * Search the tree for it's maximum value - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const getMaxNodeInRbt = <K, V>(tree: IRedBlackTree<K, V>): IRedBlackTreeNode<K, V> => {
-
-    // Get a local variable.
-    let currentNode: IRedBlackTreeNode<K, V> = tree.root;
-
-    // Iterate right until a leaf is reached.
-    while (currentNode.right !== tree.sentinel) {
-        currentNode = currentNode.right;
-    }
-
-    return currentNode;
-};
-
-/**
- * Search the tree for it's minimum value - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const getMinNodeInRbt = <K, V>(tree: IRedBlackTree<K, V>): IRedBlackTreeNode<K, V> => {
-
-    // Get a local variable.
-    let currentNode: IRedBlackTreeNode<K, V> = tree.root;
-
-    // Iterate left until a leaf is reached.
-    while (currentNode.left !== tree.sentinel) {
-        currentNode = currentNode.left;
-    }
-
-    return currentNode;
-};
-
-export const findNodeSuccessorInRbt = <K, V>(tree: IRedBlackTree<K, V>,
-                                             node: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
-
-    // If the node has a right subtree, simply return the minimum value of the subtree.
-    if (node.right) return getMinNodeInRbt(tree);
-
-    // Define local variables to track current and previous nodes.
-    let previous = node;
-    let current  = previous.parent;
-
-    while (current && previous === current.right) {
-        previous = current;
-        current  = current.parent;
-    }
-
-    return current;
-};
-
-
 export const makeSentinel = <K, V>(): IRedBlackTreeNode<K, V> => {
     const sentinel: IRedBlackTreeNode<K, V> = RedBlackTreeNode();
-    sentinel.parent                         = sentinel;
-    sentinel.left                           = sentinel;
-    sentinel.right                          = sentinel;
-    sentinel.color                          = RedBlackTreeNodeColor.BLACK;
+    initializeNodeRelationships(sentinel, sentinel);
+    sentinel.color = RedBlackTreeNodeColor.BLACK;
 
     return sentinel;
+};
+
+export const initializeNodeRelationships = <K, V>(node: IRedBlackTreeNode<K, V>,
+                                                  sentinel: IRedBlackTreeNode<K, V>): void => {
+    node.parent = sentinel;
+    node.left   = sentinel;
+    node.right  = sentinel;
 };
 
 /**
@@ -634,3 +635,64 @@ export const traverseTreePostOrder = <K, V>(root: IRedBlackTreeNode<K, V>, senti
 
     return [].concat(left, right, self);
 };
+
+export const nodeIsLeaf = <K, V>(node: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): boolean => {
+    if (node === sentinel) return false;
+
+    return node.left === sentinel && node.right === sentinel;
+};
+
+export const nodeHasSingleChild = <K, V>(node: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): boolean => {
+    if (node === sentinel || nodeIsLeaf(node, sentinel)) return false;
+
+    return node.left === sentinel || node.right === sentinel;
+};
+
+export const nodeHasTwoChildren = <K, V>(node: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): boolean => {
+    if (node === sentinel) return false;
+
+    return node.left !== sentinel && node.right !== sentinel;
+};
+
+export const getRbtHeight = <K, V>(root: IRedBlackTreeNode<K, V>, sentinel: IRedBlackTreeNode<K, V>): number => {
+    if (root === sentinel) return 0;
+
+    const leftHeight  = getRbtHeight(root.left, sentinel);
+    const rightHeight = getRbtHeight(root.right, sentinel);
+
+    return Math.max(leftHeight, rightHeight) + 1;
+};
+
+export const cloneRbtNode = <K, V>(node: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    return RedBlackTreeNode(node.key, node.value);
+};
+
+const cloneRbtSubtree = <K, V>(root: IRedBlackTreeNode<K, V>,
+                               sentinel: IRedBlackTreeNode<K, V>): IRedBlackTreeNode<K, V> => {
+    if (root === sentinel) return sentinel;
+
+    const node = cloneRbtNode(root);
+    node.color = root.color;
+
+    node.left = cloneRbtSubtree(root.left, sentinel);
+    if (node.left) node.left.parent = node;
+
+    node.right = cloneRbtSubtree(root.right, sentinel);
+    if (node.right) node.right.parent = node;
+
+    return node;
+};
+
+//const isValidRbt = <K, V>(node: IRedBlackTreeNode<K, V>,
+//                              sentinel: IRedBlackTreeNode<K, V>,
+//                              comparer: IComparer<K> = defaultComparer): boolean => {
+//    if (node === sentinel) return true;
+//
+//    if (node.left !== sentinel && comparer(node.key, node.left.key) < 0) return false;
+//    if (node.right !== sentinel && comparer(node.key, node.right.key) > 0) return false;
+//
+//    const leftIsValid  = node.left ? isValidRbt(node.left, sentinel, comparer) : true;
+//    const rightIsValid = node.right ? isValidRbt(node.right, sentinel, comparer) : true;
+//
+//    return leftIsValid && rightIsValid;
+//};

@@ -1,10 +1,13 @@
 import {
     defaultComparer,
+    getTreeHeight,
+    nodeHasSingleChild,
+    nodeHasTwoChildren,
+    nodeIsLeaf,
     traverseTree,
     BinaryTreeNode,
     IBinaryTreeNode,
-    IComparer,
-    TraversalOrder,
+    IComparer, TraversalOrder,
 } from '../binary-tree/binary-tree';
 
 /**
@@ -38,6 +41,8 @@ export interface IBinarySearchTree<K, V = K> {
 
     size(): number;
 
+    height(): number;
+
     clear(): void;
 
     find(key: K): V;
@@ -53,6 +58,8 @@ export interface IBinarySearchTree<K, V = K> {
     traverse(order?: TraversalOrder): V[];
 
     toString(): string;
+
+    clone(): IBinarySearchTree<K, V>;
 }
 
 /**
@@ -66,35 +73,48 @@ export const BinarySearchTree = <K, V>(comparer: IComparer<K> = defaultComparer)
 
         size(): number { return this.traverse().length; },
 
+        height(): number { return getTreeHeight(this.root); },
+
         clear(): void { return clearBst(this); },
 
         find(key: K): V {
-            const node: IBinarySearchTreeNode<K, V> = findNodeInBst(this, key, comparer);
+            const node: IBinarySearchTreeNode<K, V> = findFromNode(this.root, key, comparer);
 
             return node ? node.value : null;
         },
 
         min(): V {
-            const node: IBinarySearchTreeNode<K, V> = getMinNodeInBst(this);
+            const node: IBinarySearchTreeNode<K, V> = minFromNode(this.root);
 
             return node ? node.value : null;
         },
 
         max(): V {
-            const node: IBinarySearchTreeNode<K, V> = getMaxNodeInBst(this);
+            const node: IBinarySearchTreeNode<K, V> = maxFromNode(this.root);
 
             return node ? node.value : null;
         },
 
         insert(key: K, value?: V): IBinarySearchTree<K, V> {
-            const newNode = BinarySearchTreeNode(key, value);
-            insertNodeIntoBst(this, newNode, comparer);
+            const freshNode = BinarySearchTreeNode(key, value);
+
+            (!this.root)
+                ? this.root = freshNode
+                : insertAtNode(this.root, freshNode, comparer);
 
             return this;
         },
 
         remove(key: K): IBinarySearchTree<K, V> {
-            removeNodeFromBst(this, key, comparer);
+
+            // Find the node first, and return if it isn't found.
+            const candidate = findFromNode(this.root, key, comparer);
+
+            if (candidate) {
+                const replacement = removeAtNode(candidate);
+
+                if (!candidate.parent) this.root = replacement;
+            }
 
             return this;
         },
@@ -106,186 +126,202 @@ export const BinarySearchTree = <K, V>(comparer: IComparer<K> = defaultComparer)
                        .join(' | ')
                        .trim();
         },
+
+        clone(): IBinarySearchTree<K, V> {
+            const newTree: IBinarySearchTree<K, V> = BinarySearchTree();
+            newTree.root                           = cloneBstSubtree(this.root);
+
+            return newTree;
+        },
     };
 };
 
 export const clearBst = <K, V>(tree: IBinarySearchTree<K, V>): void => tree.root = null;
 
-/**
- * Insert the given key into the tree - iteratively.  No duplicates are allowed.  If the new node is a
- * duplicate, no change occurs.  A recursive solution is prettier and cooler, but it has the potential for
- * memory-related performance problems as the tree grows (i.e. hitting stack limits).
- */
-export const insertNodeIntoBst = <K, V>(tree: IBinarySearchTree<K, V>,
-                                        candidate: IBinarySearchTreeNode<K, V>,
-                                        comparer: IComparer<K> = defaultComparer): IBinarySearchTreeNode<K, V> => {
+export const findFromNode = <K, V>(root: IBinarySearchTreeNode<K, V>,
+                                   key: K,
+                                   comparer: IComparer<K> = defaultComparer): IBinarySearchTreeNode<K, V> => {
+    if (!root) return null;
 
-    let current: IBinarySearchTreeNode<K, V> = tree.root;
+    if (comparer(root.key, key) === 0) return root;
 
-    // Initialize the candidate.
-    candidate.parent = null;
-
-    // Iterate over the tree to find the new node's parent.
-    while (current) {
-        candidate.parent = current;
-
-        // Don't allow duplicates, so default to replacing the node entirely.  (I assume the user knows what he/she/it
-        // is doing.)
-        if (comparer(candidate.key, current.key) === 0) {
-
-            // Copy information from the stale node.
-            candidate.parent = current.parent;
-            candidate.left   = current.left;
-            candidate.right  = current.right;
-
-            break;
-        }
-
-        // Otherwise traverse the appropriate child.
-        else if (comparer(candidate.key, current.key) < 0) current = current.left;
-        else current = current.right;
-    }
-
-    // If the parent is null, the tree was empty and the new node becomes the new root.
-    if (!candidate.parent) tree.root = candidate;
-
-    // Otherwise, determine whether the new node is the left or right child of it's parent and link it.
-    else if (comparer(candidate.key, candidate.parent.key) < 0) candidate.parent.left = candidate;
-    else candidate.parent.right = candidate;
-
-    // Return the newly inserted node.
-    return candidate;
+    // Tail call
+    return comparer(root.key, key) < 0
+        ? findFromNode(root.right, key, comparer)
+        : findFromNode(root.left, key, comparer);
 };
 
-/**
- * Delete the given key from the tree - iteratively.  A recursive solution is prettier and cooler, but it has the
- * potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).
- */
-export const removeNodeFromBst = <K, V>(tree: IBinarySearchTree<K, V>,
-                                        key: K,
-                                        comparer: IComparer<K> = defaultComparer): IBinarySearchTreeNode<K, V> => {
+export const minFromNode = <K, V>(root: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    if (!root || !root.left) return root;
 
-    // Find the node first, and return if it isn't found.
-    const candidate = findNodeInBst(tree, key, comparer);
+    // Tail call
+    return minFromNode(root.left);
+};
+
+export const maxFromNode = <K, V>(root: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    if (!root || !root.right) return root;
+
+    // Tail call
+    return maxFromNode(root.right);
+};
+
+export const insertAtNode = <K, V>(current: IBinarySearchTreeNode<K, V>,
+                                   freshNode: IBinarySearchTreeNode<K, V>,
+                                   comparer: IComparer<K> = defaultComparer): IBinarySearchTreeNode<K, V> => {
+
+    // Insert
+    if (!current) return freshNode;
+
+    // Update and return
+    if (comparer(current.key, freshNode.key) === 0) {
+        current.value = freshNode.value;
+
+        return current;
+    }
+
+    // Otherwise insert into the correct subtree.
+    if (comparer(current.key, freshNode.key) < 0) {
+        if (!current.right) {
+            current.right    = freshNode;
+            freshNode.parent = current;
+
+            return freshNode;
+        }
+
+        // Tail call
+        return insertAtNode(current.right, freshNode, comparer);
+    } else {
+        if (!current.left) {
+            current.left     = freshNode;
+            freshNode.parent = current;
+
+            return freshNode;
+        }
+
+        // Tail call
+        return insertAtNode(current.left, freshNode, comparer);
+    }
+};
+
+export const removeAtNode = <K, V>(candidate: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+
     if (!candidate) return null;
 
-    // Declare a replacement for the deleted node.  This begins as it's successor, but is spliced out of it's
-    // original location and is substituted back into the tree at the location of the deleted node.
     let replacement: IBinarySearchTreeNode<K, V> = null;
 
-    // If the node to be deleted has less than 2 children (i.e. 0 or 1), designate it as it's own replacement
-    if (!candidate.left || !candidate.right) replacement = candidate;
+    if (nodeIsLeaf(candidate)) replacement = handleLeafNode(candidate);
+    else if (!candidate.right) replacement = handleNodeWithLeftChildOnly(candidate);
+    else if (!candidate.left) replacement = handleNodeWithRightChildOnly(candidate);
+    else if (nodeHasTwoChildren(candidate)) replacement = handleSaturatedNode(candidate);
 
-    // Otherwise set the replacement as the candidate's immediate successor.
-    else replacement = findNodeSuccessorInBst(tree, candidate);
-
-    // Declare a new successor.  This is either the replacement's only child, or null.  After the replacement takes
-    // over in the old position of the deleted node, this node represents the replacement's immediate successor.
-    let newSuccessor: IBinarySearchTreeNode<K, V> = null;
-
-    // Set the next successor as either the replacement's left or right child
-    if (replacement.left) newSuccessor = replacement.left;
-    else newSuccessor = replacement.right;
-
-    // The new successor could still potentially be null.  If not, set it's parent to it's grandparent.
-    if (newSuccessor) newSuccessor.parent = replacement.parent;
-
-    // If replacement's parent is null (and, from above, the new successor's parent is null), set the new successor
-    // as the root of the tree.
-    if (!replacement.parent) tree.root = newSuccessor;
-
-    // If not setting a new root, determine which direction will splice out the replacement.
-    else if (replacement === replacement.parent.left) replacement.parent.left = newSuccessor;
-    else replacement.parent.right = newSuccessor;
-
-    // Replace the candidate with the replacement (essentially deleting the candidate).
-    if (replacement !== candidate) candidate.value = replacement.value;
-
-    // Return all parties involved in node removal: the candidate (deleted node), the candidate's replacement in the
-    // tree, and the new successor (successor to the replacement).
     return replacement;
 };
 
-/**
- * Search the tree for a given key - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const findNodeInBst = <K, V>(tree: IBinarySearchTree<K, V>,
-                                    targetKey: K,
-                                    comparer: IComparer<K> = defaultComparer): IBinarySearchTreeNode<K, V> => {
+const handleLeafNode = <K, V>(candidate: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    const replacement: IBinarySearchTreeNode<K, V> = null;
 
-    // Just make sure the target is legitimate.
-    if (targetKey == null) return null;
-
-    // Get a local variable.
-    let currentNode = tree.root;
-
-    // Loop until the current node is null (i.e. target key is not found), or the target key is found (comparer
-    // returns zero).
-    while (currentNode && comparer(targetKey, currentNode.key) !== 0) {
-
-        // If comparer returns less than zero, target key is less than current node key - traverse left;
-        if (comparer(targetKey, currentNode.key) < 0) currentNode = currentNode.left;
-
-        // If comparer returns greater than zero, target key is greater than current node key - traverse right.
-        else currentNode = currentNode.right;
+    if (candidate.parent) {
+        candidate.parent.left === candidate
+            ? candidate.parent.left = null
+            : candidate.parent.right = null;
     }
 
-    // Return the current node (an actual node if the target is found, null if not).
-    return currentNode;
+    return replacement;
 };
 
-/**
- * Search the tree for it's maximum value - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const getMaxNodeInBst = <K, V>(tree: IBinarySearchTree<K, V>): IBinarySearchTreeNode<K, V> => {
+const handleNodeWithRightChildOnly = <K, V>(candidate: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    const replacement: IBinarySearchTreeNode<K, V> = candidate.right;
 
-    // Get a local variable.
-    let currentNode = tree.root;
+    replacement.parent = candidate.parent;
 
-    // Iterate right until a leaf is reached.
-    while (currentNode.right) {
-        currentNode = currentNode.right;
+    if (candidate.parent) {
+        candidate.parent.left === candidate
+            ? candidate.parent.left = replacement
+            : candidate.parent.right = replacement;
     }
 
-    return currentNode;
+    return replacement;
 };
 
-/**
- * Search the tree for it's minimum value - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const getMinNodeInBst = <K, V>(tree: IBinarySearchTree<K, V>): IBinarySearchTreeNode<K, V> => {
+const handleNodeWithLeftChildOnly = <K, V>(candidate: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    const replacement: IBinarySearchTreeNode<K, V> = candidate.left;
 
-    // Get a local variable.
-    let currentNode = tree.root;
+    replacement.parent = candidate.parent;
 
-    // Iterate left until a leaf is reached.
-    while (currentNode.left) {
-        currentNode = currentNode.left;
+    if (candidate.parent) {
+        candidate.parent.left === candidate
+            ? candidate.parent.left = replacement
+            : candidate.parent.right = replacement;
     }
 
-    return currentNode;
+    return replacement;
 };
 
-export const findNodeSuccessorInBst = <K, V>(tree: IBinarySearchTree<K, V>,
-                                             node: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+const handleSaturatedNode = <K, V>(candidate: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    const replacement: IBinarySearchTreeNode<K, V> = minFromNode(candidate.right);
 
-    // If the node has a right subtree, simply return the minimum value of the subtree.
-    if (node.right) return getMinNodeInBst(tree);
+    // Replace the candidate key/value with the replacement and delete the original replacement.
+    candidate.key   = replacement.key;
+    candidate.value = replacement.value;
 
-    // Define local variables to track current and previous nodes.
-    let previous = node;
-    let current  = previous.parent;
-
-    while (current && previous === current.right) {
-        previous = current;
-        current  = current.parent;
+    if (nodeIsLeaf(replacement)) {
+        handleLeafNode(replacement);
+    }
+    else { // the only other option for a min node is to have a right child
+        handleNodeWithRightChildOnly(replacement);
     }
 
-    return current;
+    return candidate;
+};
+
+// helper functions
+
+export const isValidBst = <K, V>(node: IBinarySearchTreeNode<K, V>,
+                                 comparer: IComparer<K> = defaultComparer): boolean => {
+    if (!node) return true;
+
+    if (node.left && comparer(node.key, node.left.key) < 0) return false;
+    if (node.right && comparer(node.key, node.right.key) > 0) return false;
+
+    const leftIsValid  = node.left ? isValidBst(node.left) : true;
+    const rightIsValid = node.right ? isValidBst(node.right) : true;
+
+    return leftIsValid && rightIsValid;
+};
+
+export const findInvalidBstNode = <K, V>(node: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    if (!node) return null;
+
+    if (!isValidBst(node)) {
+
+        if (!isValidBst(node.left)) {
+            return findInvalidBstNode(node.left);
+        }
+
+        if (!isValidBst(node.right)) {
+            return findInvalidBstNode(node.right);
+        }
+
+        return node;
+    }
+
+    return null;
+};
+
+export const cloneBstNode = <K, V>(node: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    return BinarySearchTreeNode(node.key, node.value);
+};
+
+const cloneBstSubtree = <K, V>(root: IBinarySearchTreeNode<K, V>): IBinarySearchTreeNode<K, V> => {
+    if (!root) return null;
+
+    const node = cloneBstNode(root);
+
+    node.left = cloneBstSubtree(root.left);
+    if (node.left) node.left.parent = node;
+
+    node.right = cloneBstSubtree(root.right);
+    if (node.right) node.right.parent = node;
+
+    return node;
 };

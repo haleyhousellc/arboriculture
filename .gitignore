@@ -139,6 +139,8 @@ index.js.map
 driver.*
 src/**/*.js
 src/**/*.js.map
+test/**/*.js
+test/**/*.js.map
 examples/**/*.js
 examples/**/*.js.map
 
@@ -146,3 +148,4 @@ dist/
 docs/autogen/
 coverage/
 .nyc_output/
+temp

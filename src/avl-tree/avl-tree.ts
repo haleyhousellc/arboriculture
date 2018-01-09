@@ -1,15 +1,15 @@
 import {
     clearBst,
-    findNodeInBst,
-    findNodeSuccessorInBst,
-    getMaxNodeInBst,
-    getMinNodeInBst,
-    insertNodeIntoBst,
-    removeNodeFromBst,
+    findFromNode,
+    insertAtNode,
+    isValidBst,
+    maxFromNode,
+    minFromNode,
+    removeAtNode,
     BinarySearchTreeNode,
     IBinarySearchTreeNode,
 } from '../binary-search-tree/binary-search-tree';
-import { defaultComparer, traverseTree, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
+import { defaultComparer, getTreeHeight, traverseTree, IComparer, TraversalOrder } from '../binary-tree/binary-tree';
 
 export enum BalanceFactor {
     RIGHT_HEAVY   = -2,
@@ -19,39 +19,26 @@ export enum BalanceFactor {
     LEFT_HEAVY    = 2,
 }
 
-export enum InsertionMultiplier {
-    LEFT  = 1,
-    RIGHT = -1,
-}
-
 /**
  * An avl tree node redefines the types of members #left, #right, and #parent to return IAvlTreeNode<K, V> rather
  * than a IBinarySearchTreeNode<K, V>.  It also adds a new member #color used in determining how/when to rotate the
  * tree.
  */
 export interface IAvlTreeNode<K, V = K> extends IBinarySearchTreeNode<K, V> {
-    balanceFactor: BalanceFactor;
-    isOverweight: boolean;
-    isBalanced: boolean;
     left: IAvlTreeNode<K, V>;
     right: IAvlTreeNode<K, V>;
     parent: IAvlTreeNode<K, V>;
+
+    getBalanceFactor(): BalanceFactor;
+
+    isOverweight(): boolean;
 }
 
 export const AvlTreeNode = <K, V>(key: K, value?: V): IAvlTreeNode<K, V> => {
     const node: IBinarySearchTreeNode<K, V> = BinarySearchTreeNode(key, value);
-    const balanceFactor: BalanceFactor      = BalanceFactor.BALANCED;
-    const isOverweight: boolean             = false;
-    const isBalanced: boolean               = true;
 
     return {
         ...node,
-
-        balanceFactor,
-
-        isBalanced,
-
-        isOverweight,
 
         get left(): IAvlTreeNode<K, V> { return node.left as IAvlTreeNode<K, V>; },
 
@@ -59,11 +46,24 @@ export const AvlTreeNode = <K, V>(key: K, value?: V): IAvlTreeNode<K, V> => {
 
         get parent(): IAvlTreeNode<K, V> { return node.parent as IAvlTreeNode<K, V>; },
 
+        getBalanceFactor(): BalanceFactor {
+            const leftHeight  = this.left ? getTreeHeight(this.left) : 0;
+            const rightHeight = this.right ? getTreeHeight(this.right) : 0;
+
+            return leftHeight - rightHeight;
+        },
+
+        isOverweight(): boolean {
+            const balanceFactor = this.getBalanceFactor();
+
+            return balanceFactor === BalanceFactor.LEFT_HEAVY || balanceFactor === BalanceFactor.RIGHT_HEAVY;
+        },
+
         toString(): string {
-            const str = `value: ${node.value}, balance factor: ${balanceFactor}`;
-            if (node.left) str.concat(`, left.value: ${node.left.value}`);
-            if (node.right) str.concat(`, right.value: ${node.right.value}`);
-            if (node.parent) str.concat(`, parent.value: ${node.parent.value}`);
+            const str = `value: ${this.value}, balance factor: ${this.getBalanceFactor()}`;
+            if (this.left) str.concat(`, left.value: ${this.left.value}`);
+            if (this.right) str.concat(`, right.value: ${this.right.value}`);
+            if (this.parent) str.concat(`, parent.value: ${this.parent.value}`);
 
             return str;
         },
@@ -74,6 +74,8 @@ export interface IAvlTree<K, V = K> {
     root: IAvlTreeNode<K, V>;
 
     size(): number;
+
+    height(): number;
 
     clear(): void;
 
@@ -87,9 +89,11 @@ export interface IAvlTree<K, V = K> {
 
     remove(key: K): IAvlTree<K, V>;
 
-    traverse(order: TraversalOrder): V[];
+    traverse(order?: TraversalOrder): V[];
 
     toString(): string;
+
+    clone(): IAvlTree<K, V>;
 }
 
 export const AvlTree = <K, V>(comparer: IComparer<K> = defaultComparer): IAvlTree<K, V> => {
@@ -100,35 +104,68 @@ export const AvlTree = <K, V>(comparer: IComparer<K> = defaultComparer): IAvlTre
 
         size(): number { return this.traverse().length; },
 
-        clear(): void { return clearAvl(this); },
+        height(): number { return getTreeHeight(this.root); },
+
+        clear(): void { return clearBst(this); },
 
         find(key: K): V {
-            const node: IAvlTreeNode<K, V> = findNodeInAvl(this, key, comparer);
+            const node = findFromNode(this.root, key, comparer) as IAvlTreeNode<K, V>;
 
             return node ? node.value : null;
         },
 
         min(): V {
-            const node: IAvlTreeNode<K, V> = getMinNodeInAvl(this);
+            const node = minFromNode(this.root) as IAvlTreeNode<K, V>;
 
             return node ? node.value : null;
         },
 
         max(): V {
-            const node: IAvlTreeNode<K, V> = getMaxNodeInAvl(this);
+            const node = maxFromNode(this.root) as IAvlTreeNode<K, V>;
 
             return node ? node.value : null;
         },
 
         insert(key: K, value?: V): IAvlTree<K, V> {
-            const newNode = AvlTreeNode(key, value);
-            insertNodeIntoAvl(this, newNode, comparer);
+            const freshNode = AvlTreeNode(key, value);
+
+            if (!this.root) {
+                this.root = freshNode;
+            } else {
+                // Insert the node.
+                const insertedNode = insertAtNode(this.root, freshNode, comparer) as IAvlTreeNode<K, V>;
+
+                // Fix the insertion.
+                fixInsertionIntoAvl(this, insertedNode);
+            }
 
             return this;
         },
 
         remove(key: K): IAvlTree<K, V> {
-            removeNodeFromAvl(this, key, comparer);
+
+            // Find the node first, and return if it isn't found.
+            const candidate = findFromNode(this.root, key, comparer) as IAvlTreeNode<K, V>;
+
+            if (candidate) {
+
+                // Initial starting point.
+                const fixStartNode = candidate;
+
+                // Find the successor to the candidate up for delete.
+                const possibleReplacement: IAvlTreeNode<K, V> = minFromNode(candidate.right) as IAvlTreeNode<K, V>;
+
+                const targetToFix: IAvlTreeNode<K, V> = (possibleReplacement && possibleReplacement !== candidate.right)
+                    ? possibleReplacement.parent
+                    : fixStartNode;
+
+                const replacement = removeAtNode(candidate) as IAvlTreeNode<K, V>;
+
+                // Now, fix any imbalances that may have arisen.
+                fixDeletionFromAvl(this, targetToFix);
+
+                if (!candidate.parent) this.root = replacement;
+            }
 
             return this;
         },
@@ -140,92 +177,15 @@ export const AvlTree = <K, V>(comparer: IComparer<K> = defaultComparer): IAvlTre
                        .join(' | ')
                        .trim();
         },
+
+        clone(): IAvlTree<K, V> {
+            const newTree: IAvlTree<K, V> = AvlTree();
+            newTree.root                  = cloneAvlSubtree(this.root);
+
+            return newTree;
+        },
     };
 };
-
-
-export const findNodeInAvl = <K, V>(tree: IAvlTree<K, V>,
-                                    targetKey: K,
-                                    comparer: IComparer<K> = defaultComparer): IAvlTreeNode<K, V> => {
-    return findNodeInBst(tree, targetKey, comparer) as IAvlTreeNode<K, V>;
-};
-
-/**
- * Insert the given key into the tree - iteratively.  No duplicates are allowed.  If the new node is a
- * duplicate, no change occurs.  A recursive solution is prettier and cooler, but it has the potential for
- * memory-related performance problems as the tree grows (i.e. hitting stack limits).
- */
-export const insertNodeIntoAvl = <K, V>(tree: IAvlTree<K, V>,
-                                        newNode: IAvlTreeNode<K, V>,
-                                        comparer: IComparer<K> = defaultComparer): IAvlTreeNode<K, V> => {
-
-    const insertedNode: IAvlTreeNode<K, V> = insertNodeIntoBst(tree, newNode, comparer) as IAvlTreeNode<K, V>;
-
-    // Only move forward if the node wasn't a duplicate.
-    if (!insertedNode) return null;
-
-    // Fix the insertion, if it occurred.
-    fixInsertionIntoAvl(tree, insertedNode);
-
-    // Return the newly inserted node.
-    return insertedNode;
-};
-
-/**
- * Delete the given key from the tree - iteratively.  A recursive solution is prettier and cooler, but it has the
- * potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).
- *
- * The logic below up to the call to #removeNodeFromBst is actually duplicated from that function.  For an AVL
- * tree we need to know the original parent of the replacement to make it easier to update balance factors along
- * the path to the candidate.  An alternative would be to traverse the entire subtree after removal to try to
- * determine where the replacement came from.  This seemed more straight forward...
- */
-export const removeNodeFromAvl = <K, V>(tree: IAvlTree<K, V>,
-                                        key: K,
-                                        comparer: IComparer<K> = defaultComparer): IAvlTreeNode<K, V> => {
-
-    // For more information on the following lines (up to the call to #removeNodeFromBst) see that method instead.
-    // The logic is duplicated to make book-keeping easier after the removal.  Essentially, we call #findNodeInAvl and
-    // #findNodeSuccessorInBst here, then again in the reused code from #removeNodeFromBst.  Both are quick O(log n)
-    // operations, so running each twice is still O(log n) - essentially, a negligible performance hit.
-    const candidate: IAvlTreeNode<K, V> = findNodeInAvl(tree, key, comparer);
-    if (!candidate) return null;
-
-    let successor: IAvlTreeNode<K, V> = null;
-
-    if (!candidate.left || !candidate.right) successor = candidate;
-    else successor = findNodeSuccessorInBst(tree, candidate) as IAvlTreeNode<K, V>;
-
-    // There will be a bit of duplicated logic here, but overall the running time will remain the same - O (log n).
-    const replacement: IAvlTreeNode<K, V> = removeNodeFromBst(tree, key, comparer) as IAvlTreeNode<K, V>;
-
-    replacement.balanceFactor = candidate.balanceFactor;
-
-    // Now, fix any imbalances that may have arisen.
-    if (replacement) fixDeletionFromAvl(tree, successor.parent);
-
-    return replacement;
-};
-
-/**
- * Search the tree for it's minimum value - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const getMinNodeInAvl = <K, V>(tree: IAvlTree<K, V>): IAvlTreeNode<K, V> => {
-    return getMinNodeInBst(tree) as IAvlTreeNode<K, V>;
-};
-
-/**
- * Search the tree for it's maximum value - iteratively.  A recursive solution is prettier and cooler, but it has
- * the potential for memory-related performance problems as the tree grows (i.e. hitting stack limits).  Returns a
- * node if the value exists in the tree.  If the value is not found, returns null.
- */
-export const getMaxNodeInAvl = <K, V>(tree: IAvlTree<K, V>): IAvlTreeNode<K, V> => {
-    return getMaxNodeInBst(tree) as IAvlTreeNode<K, V>;
-};
-
-export const clearAvl = <K, V>(tree: IAvlTree<K, V>) => clearBst(tree);
 
 //</editor-fold>
 
@@ -234,99 +194,66 @@ export const clearAvl = <K, V>(tree: IAvlTree<K, V>) => clearBst(tree);
 /**
  * This function adjusts balance factors and performs any rotations needed after inserting a new node.
  */
-export const fixInsertionIntoAvl = <K, V>(tree: IAvlTree<K, V>, newNode: IAvlTreeNode<K, V>): void => {
+const fixInsertionIntoAvl = <K, V>(tree: IAvlTree<K, V>, candidate: IAvlTreeNode<K, V>): void => {
 
     // Quick sanity check.
-    if (!newNode) return;
+    if (!candidate || !candidate.parent) return;
 
-    let previous: IAvlTreeNode<K, V> = newNode;
-    let current: IAvlTreeNode<K, V>  = previous.parent;
+    let current: IAvlTreeNode<K, V> = candidate.parent;
 
-    // New node was inserted into empty tree (at root).
-    if (!current) return;
+    // If the current node is overweight, simply rebalance it.  Reassign current to the new subtree root.
+    if (current.isOverweight()) current = rebalanceAvlSubtree(tree, current);
 
-    // Find the offending node (this is the first node with a balance factor that is either left overweight or right
-    // overweight).
-    while (current) {
+    // If the current node is balanced after adjusting its balance factor (and possibly rebalancing), we can
+    // safely exit.
+    if (current.getBalanceFactor() === BalanceFactor.BALANCED) return;
 
-        // Update the balance factor based on the direction in which the insertion took place.
-        current.balanceFactor += previous === current.left ? InsertionMultiplier.LEFT : InsertionMultiplier.RIGHT;
-
-        // If the current node is overweight, simply rebalance it.  Reassign current to the new subtree root.
-        if (current.isOverweight) current = rebalanceAvlSubtree(tree, current);
-
-        // If the current node is balanced after adjusting its balance factor (and possibly rebalancing), we can
-        // safely exit.
-        if (current.isBalanced) break;
-
-        previous = current;
-        current  = current.parent;
-    }
-
-    return;
+    // Tail call
+    fixInsertionIntoAvl(tree, current);
 };
 
 /**
  * This function adjusts balance factors and performs any rotations needed after deleting a node.
+ *
+ * Follow the path from the replacement to the candidate and update balance factors along the way.  When removing a
+ * node from a BST, the successor will always be a descendant of the candidate or the candidate itself.  Therefore,
+ * we don't have to consider cases when the successor is an ancestor.
+ *
+ * @param {IAvlTree<K, V>} tree
+ * @param {IAvlTreeNode<K, V>} candidate
  */
-export const fixDeletionFromAvl = <K, V>(tree: IAvlTree<K, V>,
-                                         originalParentOfReplacement: IAvlTreeNode<K, V>): void => {
+const fixDeletionFromAvl = <K, V>(tree: IAvlTree<K, V>,
+                                  candidate: IAvlTreeNode<K, V>): void => {
 
-    // Quick sanity check.
-    if (!originalParentOfReplacement) return;
+    if (!candidate) return;
 
-    originalParentOfReplacement.balanceFactor = originalParentOfReplacement.left
-        ? BalanceFactor.LEFT_LEANING
-        : BalanceFactor.RIGHT_LEANING;
+    let current: IAvlTreeNode<K, V> = candidate;
 
-    let current: IAvlTreeNode<K, V> = originalParentOfReplacement;
+    // If the current node is overweight, simply rebalance it.  Reassign current to the new subtree root.
+    if (current.isOverweight()) current = rebalanceAvlSubtree(tree, current);
 
-
-    // Follow the path from the replacement to the candidate and update balance factors along the way.  When
-    // removing a node from a BST, the successor will always be a descendant of the candidate or the candidate
-    // itself.  Therefore, we don't have to consider cases when the successor is an ancestor.
-    while (current) {
-
-        // Update the balance factor based on the direction in which the removal took place.
-        current.balanceFactor -= current === current.left ? InsertionMultiplier.LEFT : InsertionMultiplier.RIGHT;
-
-        // If the current node is overweight, simply rebalance it.  Reassign current to the new subtree root.
-        if (current.isOverweight) current = rebalanceAvlSubtree(tree, current);
-
-        // If the current node is balanced after adjusting its balance factor (and possibly rebalancing), we can
-        // safely exit.
-        if (current.isBalanced) break;
-
-        current = current.parent;
-    }
-
-    return;
+    // Tail call
+    fixDeletionFromAvl(tree, current.parent);
 };
 
-export const rebalanceAvlSubtree = <K, V>(tree: IAvlTree<K, V>, node: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+const rebalanceAvlSubtree = <K, V>(tree: IAvlTree<K, V>, node: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
 
-    if (node.balanceFactor === BalanceFactor.LEFT_HEAVY) {
-
-        if (node.left.balanceFactor === BalanceFactor.RIGHT_LEANING) return rotateAvlSubtreeLeftThenRight(tree, node);
-
-        // If node.left is LEFT_LEANING, this is a standard right rotation due to insertion.  If node.left is
-        // BALANCED, this is a right rotation due to a delete.
-        else return rotateAvlSubtreeRight(tree, node);
+    if (node.getBalanceFactor() === BalanceFactor.LEFT_HEAVY) {
+        return node.left.getBalanceFactor() === BalanceFactor.RIGHT_LEANING
+            ? rotateAvlSubtreeLeftThenRight(tree, node)
+            : rotateAvlSubtreeRight(tree, node);
     }
-    else if (node.balanceFactor === BalanceFactor.RIGHT_HEAVY) {
-
-        if (node.right.balanceFactor === BalanceFactor.LEFT_LEANING) return rotateAvlSubtreeRightThenLeft(tree, node);
-
-        // If node.right is RIHT_LEANING, this is a standard left rotation due to insertion.  If node.right is
-        // BALANCED, this is a left rotation due to a delete.
-        else return rotateAvlSubtreeLeft(tree, node);
+    else if (node.getBalanceFactor() === BalanceFactor.RIGHT_HEAVY) {
+        return node.right.getBalanceFactor() === BalanceFactor.LEFT_LEANING
+            ? rotateAvlSubtreeRightThenLeft(tree, node)
+            : rotateAvlSubtreeLeft(tree, node);
     }
 };
 
 /**
  * Rotates a subtree rooted at 'candidate' to the left.
  */
-export const rotateAvlSubtreeLeft = <K, V>(tree: IAvlTree<K, V>, candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+const rotateAvlSubtreeLeft = <K, V>(tree: IAvlTree<K, V>, candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
 
     // Left rotation only works if the candidate has a right child.
     if (!candidate.right) return null;
@@ -357,18 +284,14 @@ export const rotateAvlSubtreeLeft = <K, V>(tree: IAvlTree<K, V>, candidate: IAvl
     // Next, give the candidate a new parent.
     candidate.parent = replacement;
 
-    // Finally, update balance factors for participating nodes.
-    replacement.balanceFactor++;
-    candidate.balanceFactor = -replacement.balanceFactor;
-
     return replacement;
 };
 
 /**
  * Rotates a subtree rooted at 'candidate' to the right.
  */
-export const rotateAvlSubtreeRight = <K, V>(tree: IAvlTree<K, V>,
-                                            candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+const rotateAvlSubtreeRight = <K, V>(tree: IAvlTree<K, V>,
+                                     candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
 
     // Right rotation only works if the candidate has a left child.
     if (!candidate.left) return null;
@@ -399,18 +322,14 @@ export const rotateAvlSubtreeRight = <K, V>(tree: IAvlTree<K, V>,
     // Next, give the candidate a new parent.
     candidate.parent = replacement;
 
-    // Finally, update balance factors for participating nodes.
-    replacement.balanceFactor--;
-    candidate.balanceFactor = -replacement.balanceFactor;
-
     return replacement;
 };
 
 /**
  * Double rotation of a subtree rooted at 'candidate' to the left then right.
  */
-export const rotateAvlSubtreeLeftThenRight = <K, V>(tree: IAvlTree<K, V>,
-                                                    candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+const rotateAvlSubtreeLeftThenRight = <K, V>(tree: IAvlTree<K, V>,
+                                             candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
     rotateAvlSubtreeLeft(tree, candidate.left);
 
     return rotateAvlSubtreeRight(tree, candidate);
@@ -419,9 +338,61 @@ export const rotateAvlSubtreeLeftThenRight = <K, V>(tree: IAvlTree<K, V>,
 /**
  * Double rotation of a subtree rooted at 'candidate' to the right then left.
  */
-export const rotateAvlSubtreeRightThenLeft = <K, V>(tree: IAvlTree<K, V>,
-                                                    candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+const rotateAvlSubtreeRightThenLeft = <K, V>(tree: IAvlTree<K, V>,
+                                             candidate: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
     rotateAvlSubtreeRight(tree, candidate.right);
 
     return rotateAvlSubtreeLeft(tree, candidate);
+};
+
+// utilities
+
+export const isValidAvl = <K, V>(node: IAvlTreeNode<K, V>,
+                                 comparer: IComparer<K> = defaultComparer): boolean => {
+    if (!node) return true;
+
+    if (node.left && comparer(node.key, node.left.key) < 0) return false;
+    if (node.right && comparer(node.key, node.right.key) > 0) return false;
+
+    const leftIsValid  = node.left ? isValidAvl(node.left) : true;
+    const rightIsValid = node.right ? isValidAvl(node.right) : true;
+
+    return leftIsValid && rightIsValid && !node.isOverweight();
+};
+
+export const findInvalidAvlNode = <K, V>(node: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+    if (!node) return null;
+
+    if (!isValidAvl(node)) {
+
+        if (!isValidAvl(node.left)) {
+            return findInvalidAvlNode(node.left);
+        }
+
+        if (!isValidAvl(node.right)) {
+            return findInvalidAvlNode(node.right);
+        }
+
+        return node;
+    }
+
+    return null;
+};
+
+export const cloneAvlNode = <K, V>(node: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+    return AvlTreeNode(node.key, node.value);
+};
+
+const cloneAvlSubtree = <K, V>(root: IAvlTreeNode<K, V>): IAvlTreeNode<K, V> => {
+    if (!root) return null;
+
+    const node = cloneAvlNode(root);
+
+    node.left = cloneAvlSubtree(root.left);
+    if (node.left) node.left.parent = node;
+
+    node.right = cloneAvlSubtree(root.right);
+    if (node.right) node.right.parent = node;
+
+    return node;
 };
